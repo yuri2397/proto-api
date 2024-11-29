@@ -50,3 +50,8 @@ Route::prefix('tanks')->middleware('auth:sanctum')->group(function () {
     Route::put('{tank}', [App\Http\Controllers\TankController::class, 'update']);
     Route::delete('{tank}', [App\Http\Controllers\TankController::class, 'destroy']);
 });
+
+
+Route::prefix('transactions')->middleware('auth:sanctum')->group(function () {
+    
+});
