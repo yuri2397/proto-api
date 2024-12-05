@@ -32,7 +32,7 @@ return new class extends Migration
         Schema::create('tanks', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->enum('type', ['gasoline', 'super', 'diesel', 'kerosene', 'other']); 
+            $table->enum('type', ['gasoline', 'diesel', 'lpg', 'cng', 'bioethanol', 'biodiesel', 'electric', 'other'])->default('other');
             $table->float('current_quantity')->default(0);
             $table->float('capacity');
             $table->enum('status', ['active', 'inactive'])->default('active');

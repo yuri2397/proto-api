@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\StationCreatedMail;
 use App\Models\StationCashRegister;
+use App\Models\TankStockFlow;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -161,7 +162,6 @@ class StationController extends Controller
     {
         $request->validate([
             'cash_register_id' => 'required|exists:station_cash_registers,id',
-            'closing_amount' => 'required|numeric',
             'pumps' => 'required|array',
             'pumps.*.pump_id' => 'required|exists:pumps,id',
             'pumps.*.closing_quantity' => 'required|numeric',
@@ -171,7 +171,7 @@ class StationController extends Controller
         ]);
 
         // test if the cash register is opened
-        $currentCashRegister = $this->openedCashRegister($station);
+        $currentCashRegister =  $this->openedCashRegister($station);
         if (!$currentCashRegister) {
             return $this->jsonResponse([
                 'message' => 'Aucune caisse ouverte trouvée!',
@@ -183,24 +183,31 @@ class StationController extends Controller
             $now = now();
             $stationCashRegister = StationCashRegister::findOrFail($request->cash_register_id);
 
+            
             $stationCashRegister->update([
-                'closing_amount' => $request->closing_amount,
+                'closing_amount' => $request->closing_amount ?? $this->calculateClosingAmount($stationCashRegister),
                 'closing_date' => $now,
             ]);
 
             foreach ($request->input('pumps') as $item) {
-                $stationCashRegister->pumpCashRegisters()->where('pump_id', $item['pump_id'])->update([
+                // get the pump cash register
+                $pumpCashRegister = $stationCashRegister->pumpCashRegisters()->where('pump_id', $item['pump_id'])->first();
+                $pumpCashRegister->update([
                     'closing_quantity' => $item['closing_quantity'],
-                    'closing_date' => $now, 
+                    'closing_date' => $now,
                 ]);
             }
 
             foreach ($request->input('tanks') as $item) {
-                $stationCashRegister->tankCashRegisters()->where('tank_id', $item['tank_id'])->update([
+                $tankCashRegister = $stationCashRegister->tankCashRegisters()->where('tank_id', $item['tank_id'])->first();
+                $tankCashRegister->update([
                     'closing_quantity' => $item['closing_quantity'],
                     'closing_date' => $now,
                 ]);
-            }   
+            }
+
+            // update the station tank current quantity
+            $this->updateStationTankCurrentQuantity($station, $stationCashRegister);
 
             DB::commit();
 
@@ -216,6 +223,24 @@ class StationController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         
+    }
+
+    private function updateStationTankCurrentQuantity(Station $station, StationCashRegister $stationCashRegister)
+    {
+        $tankRegisters = $stationCashRegister->tankCashRegisters;
+        foreach ($tankRegisters as $tankRegister) {
+            $tank = $tankRegister->tank;
+            // tank_stock_flows
+            TankStockFlow::create([
+                'quantity' => $tankRegister->closing_quantity,
+                'type' => 'cash_register_closing',
+                'user_id' => auth()->user()->id,
+                'tank_id' => $tank->id,
+            ]);
+            $tank->update([
+                'current_quantity' => $tankRegister->closing_quantity,
+            ]);
+        }
     }
 
     public function openCashRegister(Station $station, Request $request)
@@ -248,7 +273,7 @@ class StationController extends Controller
             $stationCashRegister = StationCashRegister::create([
                 'station_id' => $station->id,
                 'opening_amount' => $request->opening_amount,
-                'reference' => 'CR-' . $station->id . '-' . $now->format('YmdHis'),
+                'reference' => 'CR-' . Str::upper(Str::random(7)),
                 'opening_date' => $now,
             ]);
 

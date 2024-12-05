@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PumpOperatorController;
+use App\Http\Controllers\StationCashRegisterController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StationController;
@@ -51,6 +52,9 @@ Route::prefix('tanks')->middleware('auth:sanctum')->group(function () {
     Route::delete('{tank}', [App\Http\Controllers\TankController::class, 'destroy']);
 });
 
+Route::prefix('station-cash-registers')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [StationCashRegisterController::class, 'index']);
+});
 
 Route::prefix('transactions')->middleware('auth:sanctum')->group(function () {
     

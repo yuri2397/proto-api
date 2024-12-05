@@ -82,7 +82,7 @@ class PreloadData extends Seeder
         // add station manager 
         $userManager = User::create([
             'name' => 'Ousmane Diouf',
-            'email' => 'ousmane.diouf@test.com',
+            'email' => 'test@test.com',
             'phone' => '+221 77 123 45 67',
             'password' => Hash::make('manager'),
             'owner_type' => \App\Models\Station::class,
@@ -94,7 +94,7 @@ class PreloadData extends Seeder
         // add tanks to station
         $tank1 = \App\Models\Tank::create([
             'name' => 'Cuve 1',
-            'type' => 'gasoline',
+            'type' =>  \App\Models\Tank::TYPE_GASOLINE,
             'capacity' => 15000,
             'current_quantity' => 8000,
             'station_id' => $station->id
@@ -118,7 +118,7 @@ class PreloadData extends Seeder
 
         $tank2 = \App\Models\Tank::create([
             'name' => 'Cuve 2',
-            'type' => 'gasoline',
+            'type' =>  \App\Models\Tank::TYPE_DIESEL,
             'capacity' => 15000,
             'current_quantity' => 13000,
             'station_id' => $station->id
@@ -141,7 +141,7 @@ class PreloadData extends Seeder
 
         $tank3 = \App\Models\Tank::create([
             'name' => 'Cuve 3',
-            'type' => 'super',
+            'type' =>  \App\Models\Tank::TYPE_DIESEL,
             'capacity' => 20000,
             'current_quantity' => 13000,
             'station_id' => $station->id

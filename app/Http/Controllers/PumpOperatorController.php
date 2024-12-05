@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PumpOperator;
+use App\Models\Station;
 use Illuminate\Http\Request;
 
 class PumpOperatorController extends Controller
@@ -14,8 +15,14 @@ class PumpOperatorController extends Controller
     {
         $query = PumpOperator::with($request->with ?? []);
 
-        if($request->has('station_id')){
-            $query->whereStationId($request->input('station_id'));
+        $station_id = $request->station_id;
+        $user = auth()->user();
+        if($user->owner_type == Station::class){
+            $station_id = $user->owner_id;
+        }
+
+        if($station_id ){
+            $query->whereStationId($station_id);
         }
 
         if($request->has('search')){
