@@ -9,7 +9,21 @@ class FuelTruck extends Model
     use HasFactory;
     // fillable
     protected $fillable = ['reference', 'plate_number', 'status'];
-    // owner
+    
+    // generate reference
+    public static function generateReference(): string
+    {
+        return 'FT-' . now()->format('Ymd') . '-' . \Illuminate\Support\Str::random(6);
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            $model->reference = self::generateReference();
+        });
+    }
+
     public function owner(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {
         return $this->morphTo();

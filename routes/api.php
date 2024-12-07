@@ -52,8 +52,15 @@ Route::prefix('tanks')->middleware('auth:sanctum')->group(function () {
     Route::delete('{tank}', [App\Http\Controllers\TankController::class, 'destroy']);
 });
 
+// orders
+Route::prefix('station-fuel-orders')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [App\Http\Controllers\StationFuelOrderController::class, 'index']);
+    Route::get('/{stationFuelOrder}', [App\Http\Controllers\StationFuelOrderController::class, 'show']);
+    Route::post('/', [App\Http\Controllers\StationFuelOrderController::class, 'store']);
+});
+
 Route::prefix('station-cash-registers')->middleware('auth:sanctum')->group(function () {
-    Route::get('/', [StationCashRegisterController::class, 'index']);
+    Route::get('/', [App\Http\Controllers\StationCashRegisterController::class, 'index']);
 });
 
 Route::prefix('transactions')->middleware('auth:sanctum')->group(function () {

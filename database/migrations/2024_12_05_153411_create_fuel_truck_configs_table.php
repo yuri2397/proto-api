@@ -11,22 +11,32 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // truck 
         Schema::create('fuel_trucks', function (Blueprint $table) {
             $table->id();
             $table->string('reference')->unique();
-            $table->string('plate_number')->unique();
-            $table->enum('status', ['available', 'busy', 'maintenance', 'out_of_service', 'on_trip', 'on_delivery', 'on_order', 'on_repair'])->default('available');
-            $table->nullableMorphs('owner');
+            $table->string('matricule')->unique();
+            $table->string('transporter_name')->nullable();
             $table->timestamps();
         });
+
+        // truck driver
+        Schema::create('fuel_truck_drivers', function (Blueprint $table) {
+            $table->id();
+            $table->string('reference')->unique();
+            $table->string('name')->nullable();
+            $table->string('phone')->nullable();
+            $table->timestamps();
+        });
+
 
         Schema::create('fuel_truck_configs', function (Blueprint $table) {
             $table->id();
             $table->string('reference')->unique();
-            $table->foreignId('fuel_truck_id')->constrained()->onDelete('cascade');
             $table->float('total_quantity')->nullable();
             $table->float('total_amount')->nullable();
-            $table->string('description')->nullable();
+            $table->foreignId('fuel_truck_id')->constrained()->onDelete('cascade');
+            $table->foreignId('fuel_truck_driver_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
 
@@ -47,7 +57,6 @@ return new class extends Migration
             $table->float('amount')->nullable();
             $table->enum('status', ['initiated', 'pending', 'confirmed', 'on_delivery', 'delivered', 'canceled'])->default('initiated');
             $table->json('data')->nullable();
-            $table->foreignId('fuel_truck_id')->constrained()->onDelete('cascade');
             $table->foreignId('fuel_truck_config_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
@@ -57,8 +66,9 @@ return new class extends Migration
             $table->id();
             $table->float('received_quantity')->nullable();
             $table->foreignId('station_id')->constrained()->onDelete('cascade');
-            $table->foreignId('fuel_truck_config_part_id')->constrained()->onDelete('cascade');
-            $table->foreignId('tank_id')->constrained()->onDelete('cascade');
+            $table->foreignId('station_fuel_order_id')->constrained()->onDelete('cascade');
+            $table->foreignId('fuel_truck_config_part_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('tank_id')->nullable()->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -71,7 +81,6 @@ return new class extends Migration
         Schema::dropIfExists('station_fuel_orders');
         Schema::dropIfExists('fuel_truck_config_parts');
         Schema::dropIfExists('fuel_truck_configs');
-        Schema::dropIfExists('fuel_trucks');
 
     }
 };

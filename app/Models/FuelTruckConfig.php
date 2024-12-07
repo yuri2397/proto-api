@@ -9,9 +9,23 @@ use App\Models\FuelTruckConfigPart;
 class FuelTruckConfig extends Model
 {
     use HasFactory;
-    // fillable
-    protected $fillable = ['reference', 'fuel_truck_id', 'total_quantity', 'total_amount', 'description'];
-    // fuel truck
+
+    
+    protected $fillable = ['reference', 'total_quantity', 'total_amount', 'description'];
+    
+    public static function generateReference(): string
+    {
+        return 'FTC-' . now()->format('Ymd') . '-' . \Illuminate\Support\Str::random(6);
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            $model->reference = self::generateReference();
+        });
+    }
+
     public function fuelTruck(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(FuelTruck::class);
