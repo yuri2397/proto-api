@@ -17,7 +17,18 @@ class StationFuelOrder extends BaseModel
     const STATUS_DELIVERED = 'delivered';
     const STATUS_CANCELED = 'canceled';
 
-    protected $fillable = ['fuel_truck_config_id', 'reference', 'status', 'data'];
+    const STATUSES = [
+        self::STATUS_INITIATED,
+        self::STATUS_PENDING,
+        self::STATUS_CONFIRMED,
+        self::STATUS_ON_DELIVERY,
+        self::STATUS_DELIVERED,
+        self::STATUS_CANCELED,
+    ];
+
+    const GASOLINE_AMOUNT = 755;
+    const SUPER_AMOUNT = 990;
+    protected $fillable = ['fuel_truck_config_id', 'status', 'data', 'quantity', 'amount'];
 
     // parse data
     protected $casts = [
@@ -41,5 +52,11 @@ class StationFuelOrder extends BaseModel
     public function fuelTruckConfig(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(FuelTruckConfig::class);
+    }
+
+    // station_fuel_order_items
+    public function stationFuelOrderItems(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(StationFuelOrderItem::class);
     }
 }

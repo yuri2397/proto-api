@@ -21,7 +21,7 @@ class FuelTruckConfigPart extends BaseModel
     const TYPE_ELECTRIC = 'electric';
     const TYPE_OTHER = 'other';
 
-    protected $fillable = ['fuel_truck_config_id', 'quantity', 'capacity', 'type'];
+    protected $fillable = ['fuel_truck_config_id', 'quantity', 'capacity', 'type', 'name', 'number'];
 
     // fuel_truck_config_id
     public function fuelTruckConfig(): \Illuminate\Database\Eloquent\Relations\BelongsTo

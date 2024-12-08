@@ -179,30 +179,40 @@ class PreloadData extends Seeder
         ]);
 
         $config->fuelTruckConfigParts()->create([
+            'name' => 'Compartiment 1',
+            'number' => '1',
             'quantity' => 2000,
             'capacity' => 10000,
             'type' => \App\Models\FuelTruckConfigPart::TYPE_DIESEL,
         ]);
 
         $config->fuelTruckConfigParts()->create([
+            'name' => 'Compartiment 2',
+            'number' => '2',
             'quantity' => 3000,
             'capacity' => 8000,
             'type' => \App\Models\FuelTruckConfigPart::TYPE_GASOLINE,
         ]);
 
         $config->fuelTruckConfigParts()->create([
+            'name' => 'Compartiment 3',
+            'number' => '3',
             'quantity' => 2000,
             'capacity' => 5000,
             'type' => \App\Models\FuelTruckConfigPart::TYPE_SUPER,
         ]);
 
         $config->fuelTruckConfigParts()->create([
+            'name' => 'Compartiment 4',
+            'number' => '4',
             'quantity' => 2000,
             'capacity' => 5000,
             'type' => \App\Models\FuelTruckConfigPart::TYPE_SUPER,
         ]);
 
         $config->fuelTruckConfigParts()->create([
+            'name' => 'Compartiment 5',
+            'number' => '5',
             'quantity' => 5000,
             'capacity' => 10000,
             'type' => \App\Models\FuelTruckConfigPart::TYPE_GASOLINE,

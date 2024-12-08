@@ -42,11 +42,14 @@ return new class extends Migration
 
         Schema::create('fuel_truck_config_parts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('fuel_truck_config_id')->constrained()->onDelete('cascade');
+            $table->string('name')->nullable();
+            $table->string('number')->nullable();
             $table->float('quantity')->nullable();
             $table->float('capacity')->nullable();
-            $table->enum('type', ['gasoline', 'diesel', 'super', 'lpg', 'cng', 'bioethanol', 'biodiesel', 'electric', 'other'])->default('other');
             $table->string('description')->nullable();
+            $table->enum('type', ['gasoline', 'diesel', 'super', 'lpg', 'cng', 'bioethanol', 'biodiesel', 'electric', 'other'])->default('other');
+            $table->foreignId('fuel_truck_config_id')->constrained()->onDelete('cascade');
+            
             $table->timestamps();
         });
 

@@ -24,6 +24,13 @@ class StationFuelOrderController extends Controller
             $query->where('reference', 'like', '%' . $request->reference . '%');
         }
 
+        // station_id 
+        if ($request->station_id) {
+            $query->whereHas('stationFuelOrderItems', function ($query) use ($request) {
+                $query->where('station_id', $request->station_id);
+            });
+        }
+
         return response()->json($query->paginate($request->perPage ?? 10, ['*'], 'page', $request->page ?? 1));
     }
 
@@ -69,10 +76,9 @@ class StationFuelOrderController extends Controller
             }
 
             $totalQuantity = $config->fuelTruckConfigParts()->sum('quantity');
-
+            
             $stationFuelOrder = \App\Models\StationFuelOrder::create([
                 'fuel_truck_config_id' => $config->id,
-                'reference' => \Illuminate\Support\Str::uuid(),
                 'status' => 'initiated',
                 'data' => $request->all(),
                 'quantity' => $totalQuantity,
@@ -89,7 +95,7 @@ class StationFuelOrderController extends Controller
             return response()->json([
                 'message' => 'Station fuel order created successfully',
                 'data' => $stationFuelOrder,
-            ], 201);
+            ], 500);
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json([
@@ -112,7 +118,13 @@ class StationFuelOrderController extends Controller
      */
     public function update(Request $request, StationFuelOrder $stationFuelOrder)
     {
-        //
+        $request->validate([
+            'status' => 'required|string|in:' . implode(',', StationFuelOrder::STATUSES),
+        ]);
+
+        $stationFuelOrder->update(['status' => $request->status]);
+
+        return response()->json($stationFuelOrder);
     }
 
     /**

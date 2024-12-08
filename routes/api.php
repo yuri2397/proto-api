@@ -59,6 +59,7 @@ Route::prefix('station-fuel-orders')->middleware('auth:sanctum')->group(function
 
     Route::get('/{stationFuelOrder}', [App\Http\Controllers\StationFuelOrderController::class, 'show']);
     Route::post('/', [App\Http\Controllers\StationFuelOrderController::class, 'store']);
+    Route::put('/{stationFuelOrder}', [App\Http\Controllers\StationFuelOrderController::class, 'update']);
 });
 
 Route::prefix('station-cash-registers')->middleware('auth:sanctum')->group(function () {
