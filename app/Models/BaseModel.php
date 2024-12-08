@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 class BaseModel extends Model
 {
     /**
-     * Convert the model's attributes to an array with camelCase keys.
+     * Convert the model's attributes and relations names to an array with camelCase keys.
      *
      * @return array
      */

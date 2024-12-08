@@ -45,7 +45,7 @@ return new class extends Migration
             $table->foreignId('fuel_truck_config_id')->constrained()->onDelete('cascade');
             $table->float('quantity')->nullable();
             $table->float('capacity')->nullable();
-            $table->enum('type', ['gasoline', 'diesel', 'lpg', 'cng', 'bioethanol', 'biodiesel', 'electric', 'other'])->default('other');
+            $table->enum('type', ['gasoline', 'diesel', 'super', 'lpg', 'cng', 'bioethanol', 'biodiesel', 'electric', 'other'])->default('other');
             $table->string('description')->nullable();
             $table->timestamps();
         });

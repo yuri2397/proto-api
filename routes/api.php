@@ -55,6 +55,8 @@ Route::prefix('tanks')->middleware('auth:sanctum')->group(function () {
 // orders
 Route::prefix('station-fuel-orders')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [App\Http\Controllers\StationFuelOrderController::class, 'index']);
+    Route::get('/{stationFuelOrder}/download-pdf', [App\Http\Controllers\StationFuelOrderController::class, 'downloadPdf'])->withoutMiddleware('auth:sanctum');
+
     Route::get('/{stationFuelOrder}', [App\Http\Controllers\StationFuelOrderController::class, 'show']);
     Route::post('/', [App\Http\Controllers\StationFuelOrderController::class, 'store']);
 });

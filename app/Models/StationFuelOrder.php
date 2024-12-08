@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\FuelTruckConfig;
 
-class StationFuelOrder extends Model
+class StationFuelOrder extends BaseModel
 {
     use HasFactory;
 
@@ -18,6 +18,11 @@ class StationFuelOrder extends Model
     const STATUS_CANCELED = 'canceled';
 
     protected $fillable = ['fuel_truck_config_id', 'reference', 'status', 'data'];
+
+    // parse data
+    protected $casts = [
+        'data' => 'array',
+    ];
 
     public static function generateReference(): string
     {
@@ -32,19 +37,9 @@ class StationFuelOrder extends Model
         });
     }
 
+    // fuel_truck_config_id
     public function fuelTruckConfig(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(FuelTruckConfig::class);
     }
-
-    public function stationFuelOrderItems(): \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(StationFuelOrderItem::class);
-    }
-
-   // count total station_id
-   public function totalStation(): int
-   {
-        return $this->stationFuelOrderItems->count();
-   }
 }

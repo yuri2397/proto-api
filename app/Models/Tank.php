@@ -13,12 +13,14 @@ class Tank extends BaseModel
 
     const TYPE_GASOLINE = 'gasoline';
     const TYPE_DIESEL = 'diesel';
+    const TYPE_SUPER = 'super';
     const TYPE_LPG = 'lpg';
     const TYPE_CNG = 'cng';
     const TYPE_BIOETHANOL = 'bioethanol';
     const TYPE_BIODIESEL = 'biodiesel';
     const TYPE_ELECTRIC = 'electric';
     const TYPE_OTHER = 'other';
+
 
     protected $fillable = ['station_id','name', 'type', 'current_quantity', 'capacity', 'status'];
 

@@ -193,13 +193,13 @@ class PreloadData extends Seeder
         $config->fuelTruckConfigParts()->create([
             'quantity' => 2000,
             'capacity' => 5000,
-            'type' => \App\Models\FuelTruckConfigPart::TYPE_DIESEL,
+            'type' => \App\Models\FuelTruckConfigPart::TYPE_SUPER,
         ]);
 
         $config->fuelTruckConfigParts()->create([
             'quantity' => 2000,
             'capacity' => 5000,
-            'type' => \App\Models\FuelTruckConfigPart::TYPE_DIESEL,
+            'type' => \App\Models\FuelTruckConfigPart::TYPE_SUPER,
         ]);
 
         $config->fuelTruckConfigParts()->create([
