@@ -98,7 +98,7 @@ class StationController extends Controller
         }
 
         // Pagination
-        $stations = $query->paginate($request->get('per_page', 10));
+        $stations = $query->paginate(perPage: $request->perPage ?? 10, page: $request->page ?? 1, columns: $request->columns ?? ['*']);
 
         return response()->json($stations);
     }

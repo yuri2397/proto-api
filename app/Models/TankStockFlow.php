@@ -7,7 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TankStockFlow extends BaseModel
 {
-    protected $fillable = ['tank_id', 'quantity', 'type', 'user_id', 'updated_at'];
+    protected $fillable = ['tank_id', 'quantity', 'type', 'user_id', 'updated_at', 'data', 'dataable_type', 'dataable_id'];
+
+    protected $casts = [
+        'data' => 'array',
+    ];
 
     public function tank(): BelongsTo
     {
@@ -17,5 +21,10 @@ class TankStockFlow extends BaseModel
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function dataable(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    {
+        return $this->morphTo();
     }
 }

@@ -153,102 +153,102 @@ class PreloadData extends Seeder
             'station_id' => $station->id
         ]);
 
-        /**
-         * FUEL TRUCK DATA AND DRIVERS AND ONE Orders
-         */
+        // /**
+        //  * FUEL TRUCK DATA AND DRIVERS AND ONE Orders
+        //  */
 
-        $truck = \App\Models\FuelTruck::create([
-            'matricule' => 'SN 123456 DK',
-            'transporter_name' => 'Diallo FuelTrans',
-        ]);
+        // $truck = \App\Models\FuelTruck::create([
+        //     'matricule' => 'SN 123456 DK',
+        //     'transporter_name' => 'Diallo FuelTrans',
+        // ]);
 
-        $driver = \App\Models\FuelTruckDriver::create([
-            'name' => 'Moussa Diallo',
-            'phone' => '+221 77 123 45 67',
-        ]);
+        // $driver = \App\Models\FuelTruckDriver::create([
+        //     'name' => 'Moussa Diallo',
+        //     'phone' => '+221 77 123 45 67',
+        // ]);
 
-        /**
-         * 1L => 800 FCFA
-         */
+        // /**
+        //  * 1L => 800 FCFA
+        //  */
 
-        $config = \App\Models\FuelTruckConfig::create([
-            'total_quantity' => 14000,
-            'total_amount' => 14000 * 800,
-            'fuel_truck_id' => $truck->id,
-            'fuel_truck_driver_id' => $driver->id,
-        ]);
+        // $config = \App\Models\FuelTruckConfig::create([
+        //     'total_quantity' => 14000,
+        //     'total_amount' => 14000 * 800,
+        //     'fuel_truck_id' => $truck->id,
+        //     'fuel_truck_driver_id' => $driver->id,
+        // ]);
 
-        $config->fuelTruckConfigParts()->create([
-            'name' => 'Compartiment 1',
-            'number' => '1',
-            'quantity' => 2000,
-            'capacity' => 10000,
-            'type' => \App\Models\FuelTruckConfigPart::TYPE_DIESEL,
-        ]);
+        // $config->fuelTruckConfigParts()->create([
+        //     'name' => 'Compartiment 1',
+        //     'number' => '1',
+        //     'quantity' => 2000,
+        //     'capacity' => 10000,
+        //     'type' => \App\Models\FuelTruckConfigPart::TYPE_DIESEL,
+        // ]);
 
-        $config->fuelTruckConfigParts()->create([
-            'name' => 'Compartiment 2',
-            'number' => '2',
-            'quantity' => 3000,
-            'capacity' => 8000,
-            'type' => \App\Models\FuelTruckConfigPart::TYPE_GASOLINE,
-        ]);
+        // $config->fuelTruckConfigParts()->create([
+        //     'name' => 'Compartiment 2',
+        //     'number' => '2',
+        //     'quantity' => 3000,
+        //     'capacity' => 8000,
+        //     'type' => \App\Models\FuelTruckConfigPart::TYPE_GASOLINE,
+        // ]);
 
-        $config->fuelTruckConfigParts()->create([
-            'name' => 'Compartiment 3',
-            'number' => '3',
-            'quantity' => 2000,
-            'capacity' => 5000,
-            'type' => \App\Models\FuelTruckConfigPart::TYPE_SUPER,
-        ]);
+        // $config->fuelTruckConfigParts()->create([
+        //     'name' => 'Compartiment 3',
+        //     'number' => '3',
+        //     'quantity' => 2000,
+        //     'capacity' => 5000,
+        //     'type' => \App\Models\FuelTruckConfigPart::TYPE_SUPER,
+        // ]);
 
-        $config->fuelTruckConfigParts()->create([
-            'name' => 'Compartiment 4',
-            'number' => '4',
-            'quantity' => 2000,
-            'capacity' => 5000,
-            'type' => \App\Models\FuelTruckConfigPart::TYPE_SUPER,
-        ]);
+        // $config->fuelTruckConfigParts()->create([
+        //     'name' => 'Compartiment 4',
+        //     'number' => '4',
+        //     'quantity' => 2000,
+        //     'capacity' => 5000,
+        //     'type' => \App\Models\FuelTruckConfigPart::TYPE_SUPER,
+        // ]);
 
-        $config->fuelTruckConfigParts()->create([
-            'name' => 'Compartiment 5',
-            'number' => '5',
-            'quantity' => 5000,
-            'capacity' => 10000,
-            'type' => \App\Models\FuelTruckConfigPart::TYPE_GASOLINE,
-        ]);
+        // $config->fuelTruckConfigParts()->create([
+        //     'name' => 'Compartiment 5',
+        //     'number' => '5',
+        //     'quantity' => 5000,
+        //     'capacity' => 10000,
+        //     'type' => \App\Models\FuelTruckConfigPart::TYPE_GASOLINE,
+        // ]);
 
-        $order = \App\Models\StationFuelOrder::create([
-            'fuel_truck_config_id' => $config->id,
-            'quantity' => 14000,
-            'amount' => 14000 * 800,
-            'status' => \App\Models\StationFuelOrder::STATUS_INITIATED,
-        ]);
+        // $order = \App\Models\StationFuelOrder::create([
+        //     'fuel_truck_config_id' => $config->id,
+        //     'quantity' => 14000,
+        //     'amount' => 14000 * 800,
+        //     'status' => \App\Models\StationFuelOrder::STATUS_INITIATED,
+        // ]);
 
-        $order->stationFuelOrderItems()->create([
-            'received_quantity' => 2000,
-            'station_id' => $station->id,
-            'fuel_truck_config_part_id' => $config->fuelTruckConfigParts()->where('quantity', 2000)->first()->id,
-            'tank_id' => $tank1->id,
-        ]);
+        // $order->stationFuelOrderItems()->create([
+        //     'received_quantity' => 2000,
+        //     'station_id' => $station->id,
+        //     'fuel_truck_config_part_id' => $config->fuelTruckConfigParts()->where('quantity', 2000)->first()->id,
+        //     'tank_id' => $tank1->id,
+        // ]);
 
-        $order->stationFuelOrderItems()->create([
-            'received_quantity' => 3000,
-            'fuel_truck_config_part_id' => $config->fuelTruckConfigParts()->where('quantity', 3000)->first()->id,
-            'station_id' => $station->id,
-        ]);
+        // $order->stationFuelOrderItems()->create([
+        //     'received_quantity' => 3000,
+        //     'fuel_truck_config_part_id' => $config->fuelTruckConfigParts()->where('quantity', 3000)->first()->id,
+        //     'station_id' => $station->id,
+        // ]);
 
-        $order->stationFuelOrderItems()->create([
-            'received_quantity' => 2000,
-            'fuel_truck_config_part_id' => $config->fuelTruckConfigParts()->where('quantity', 2000)->first()->id,
-            'station_id' => $station->id,
-        ]);
+        // $order->stationFuelOrderItems()->create([
+        //     'received_quantity' => 2000,
+        //     'fuel_truck_config_part_id' => $config->fuelTruckConfigParts()->where('quantity', 2000)->first()->id,
+        //     'station_id' => $station->id,
+        // ]);
 
-        $order->stationFuelOrderItems()->create([
-            'received_quantity' => 5000,
-            'fuel_truck_config_part_id' => $config->fuelTruckConfigParts()->where('quantity', 5000)->first()->id,
-            'station_id' => $station->id,
-        ]);
+        // $order->stationFuelOrderItems()->create([
+        //     'received_quantity' => 5000,
+        //     'fuel_truck_config_part_id' => $config->fuelTruckConfigParts()->where('quantity', 5000)->first()->id,
+        //     'station_id' => $station->id,
+        // ]);
 
 
         /**

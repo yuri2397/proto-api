@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\StationFuelOrder;
+use App\Models\FuelTruckConfig;
+use App\Models\FuelTruckConfigPart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use function Spatie\LaravelPdf\Support\pdf;
 
-class StationFuelOrderController extends Controller
+class FuelTruckConfigController extends Controller
 {
+
+    // index
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $query = StationFuelOrder::with($request->with ?? []);
+        $query = FuelTruckConfig::with($request->with ?? []);
 
         if ($request->status) {
             $query->where('status', $request->status);
@@ -26,7 +28,7 @@ class StationFuelOrderController extends Controller
 
         // station_id 
         if ($request->station_id) {
-            $query->whereHas('stationFuelOrderItems', function ($query) use ($request) {
+            $query->whereHas('fuelTruckConfigParts', function ($query) use ($request) {
                 $query->where('station_id', $request->station_id);
             });
         }
@@ -43,30 +45,29 @@ class StationFuelOrderController extends Controller
             'fuel_truck_plate_number' => 'required|string',
             'driver_name' => ['required', 'string', 'max:255'],
             'driver_phone' => ['string', 'max:255'],
-            'stations_ids' => 'required|array',
-            'stations_ids.*' => 'required|exists:stations,id',
             'fuel_truck_config_parts' => 'required|array',
             'fuel_truck_config_parts.*.type' => 'required|string',
             'fuel_truck_config_parts.*.quantity' => 'required|numeric|min:0',
+            'fuel_truck_config_parts.*.name' => 'required|string',
+            'fuel_truck_config_parts.*.number' => 'required|numeric',
         ]);
 
         DB::beginTransaction();
         try {
 
-            // create fuel truck 
             $fuelTruck = \App\Models\FuelTruck::create([
                 'matricule' => $request->fuel_truck_plate_number,
             ]);
 
-            // create fuel truck driver
             $fuelTruckDriver = \App\Models\FuelTruckDriver::create([
                 'name' => $request->driver_name,
                 'phone' => $request->driver_phone,
             ]);
 
-            // create fuel truck config
+            $total_quantity = collect($request->fuel_truck_config_parts)->sum('quantity');
+
             $config = \App\Models\FuelTruckConfig::create([
-                'total_quantity' => $request->total_quantity,
+                'total_quantity' => $total_quantity,
                 'fuel_truck_id' => $fuelTruck->id,
                 'fuel_truck_driver_id' => $fuelTruckDriver->id,
             ]);
@@ -75,27 +76,12 @@ class StationFuelOrderController extends Controller
                 $config->fuelTruckConfigParts()->create($part);
             }
 
-            $totalQuantity = $config->fuelTruckConfigParts()->sum('quantity');
-            
-            $stationFuelOrder = \App\Models\StationFuelOrder::create([
-                'fuel_truck_config_id' => $config->id,
-                'status' => 'initiated',
-                'data' => $request->all(),
-                'quantity' => $totalQuantity,
-            ]);
-
-            foreach ($request->stations_ids as $stationId) {
-                $stationFuelOrder->stationFuelOrderItems()->create([
-                    'station_id' => $stationId,
-                ]);
-            }
 
             DB::commit();
-
             return response()->json([
                 'message' => 'Station fuel order created successfully',
-                'data' => $stationFuelOrder,
-            ], 500);
+                'data' => $config,
+            ], 201);
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json([
@@ -108,35 +94,32 @@ class StationFuelOrderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(StationFuelOrder $stationFuelOrder, Request $request)
+    public function show(FuelTruckConfig $fuelTruckConfig, Request $request)
     {
-        return response()->json($stationFuelOrder->load($request->with ?? []));
+
+        $config = FuelTruckConfig::with([
+            'fuelTruckConfigParts' => function ($q) use ($request) {
+                if ($request->station_id) {
+                    $q->where('station_id', $request->station_id);
+                }
+            },
+            ...$request->with ?? []
+        ])->find($fuelTruckConfig->id);
+
+        return response()->json($config);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, StationFuelOrder $stationFuelOrder)
+
+    // update
+    public function update(Request $request, FuelTruckConfig $fuelTruckConfig)
     {
         $request->validate([
-            'status' => 'required|string|in:' . implode(',', StationFuelOrder::STATUSES),
+            'status' => 'required|string|in:' . implode(',', FuelTruckConfig::STATUSES),
         ]);
 
-        $stationFuelOrder->update(['status' => $request->status]);
+        $fuelTruckConfig->update(['status' => $request->status]);
 
-        return response()->json($stationFuelOrder);
+        return response()->json($fuelTruckConfig);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(StationFuelOrder $stationFuelOrder)
-    {
-        //
-    }
-
-    public function downloadPdf(StationFuelOrder $stationFuelOrder)
-    {
-        return view('pdf.station-fuel-order', compact('stationFuelOrder'));
-    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FuelTruck;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FuelTruckController extends Controller
 {
@@ -15,14 +16,7 @@ class FuelTruckController extends Controller
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
+   
     /**
      * Display the specified resource.
      */

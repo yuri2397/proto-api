@@ -24,9 +24,9 @@ class TankController extends Controller
 
         $tanks->orderBy('name', 'asc');
 
-        $tanks = $tanks->paginate($request->per_page ?? 10);    
+        $tanks = $tanks->paginate(perPage: $request->perPage ?? 10, page: $request->page ?? 1, columns: $request->columns ?? ['*']);
 
-        return $this->jsonResponse($tanks, 200);
+        return response()->json($tanks);
     }
 
     /**

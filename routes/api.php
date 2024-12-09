@@ -53,13 +53,26 @@ Route::prefix('tanks')->middleware('auth:sanctum')->group(function () {
 });
 
 // orders
-Route::prefix('station-fuel-orders')->middleware('auth:sanctum')->group(function () {
-    Route::get('/', [App\Http\Controllers\StationFuelOrderController::class, 'index']);
-    Route::get('/{stationFuelOrder}/download-pdf', [App\Http\Controllers\StationFuelOrderController::class, 'downloadPdf'])->withoutMiddleware('auth:sanctum');
+Route::prefix('fuel-truck-configs')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [App\Http\Controllers\FuelTruckConfigController::class, 'index']);
+    Route::get('/{fuelTruckConfig}/download-pdf', [App\Http\Controllers\FuelTruckConfigController::class, 'downloadPdf']);
+    Route::put('/{fuelTruckConfigPart}/update-quantities', [App\Http\Controllers\FuelTruckConfigController::class, 'updatePartQuantities']);
 
-    Route::get('/{stationFuelOrder}', [App\Http\Controllers\StationFuelOrderController::class, 'show']);
-    Route::post('/', [App\Http\Controllers\StationFuelOrderController::class, 'store']);
-    Route::put('/{stationFuelOrder}', [App\Http\Controllers\StationFuelOrderController::class, 'update']);
+    Route::get('/{fuelTruckConfig}', [App\Http\Controllers\FuelTruckConfigController::class, 'show']);
+    Route::post('/', [App\Http\Controllers\FuelTruckConfigController::class, 'store']);
+    Route::put('/{fuelTruckConfig}', [App\Http\Controllers\FuelTruckConfigController::class, 'update']);
+});
+
+Route::prefix('fuel-truck-config-parts')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [App\Http\Controllers\FuelTruckConfigPartsController::class, 'index']);
+    Route::put('/{fuelTruckConfigPart}', [App\Http\Controllers\FuelTruckConfigPartsController::class, 'update']);
+    Route::get('/{fuelTruckConfigPart}', [App\Http\Controllers\FuelTruckConfigPartsController::class, 'show']);
+    Route::delete('/{fuelTruckConfigPart}', [App\Http\Controllers\FuelTruckConfigPartsController::class, 'destroy']);
+});
+
+Route::prefix('tank-stock-flows')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [App\Http\Controllers\TankStockFlowController::class, 'index']);
+    Route::get('/{tankStockFlow}', [App\Http\Controllers\TankStockFlowController::class, 'show']);
 });
 
 Route::prefix('station-cash-registers')->middleware('auth:sanctum')->group(function () {

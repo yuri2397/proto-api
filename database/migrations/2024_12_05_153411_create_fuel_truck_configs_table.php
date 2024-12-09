@@ -35,6 +35,8 @@ return new class extends Migration
             $table->string('reference')->unique();
             $table->float('total_quantity')->nullable();
             $table->float('total_amount')->nullable();
+            $table->enum('status', ['initiated', 'pending', 'confirmed', 'on_delivery', 'delivered', 'canceled'])->default('initiated');
+            $table->json('data')->nullable();
             $table->foreignId('fuel_truck_id')->constrained()->onDelete('cascade');
             $table->foreignId('fuel_truck_driver_id')->constrained()->onDelete('cascade');
             $table->timestamps();
@@ -49,29 +51,11 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->enum('type', ['gasoline', 'diesel', 'super', 'lpg', 'cng', 'bioethanol', 'biodiesel', 'electric', 'other'])->default('other');
             $table->foreignId('fuel_truck_config_id')->constrained()->onDelete('cascade');
-            
-            $table->timestamps();
-        });
-
-        Schema::create('station_fuel_orders', function (Blueprint $table) {
-            $table->id();
-            $table->string('reference')->unique();
-            $table->float('quantity')->nullable();
-            $table->float('amount')->nullable();
-            $table->enum('status', ['initiated', 'pending', 'confirmed', 'on_delivery', 'delivered', 'canceled'])->default('initiated');
-            $table->json('data')->nullable();
-            $table->foreignId('fuel_truck_config_id')->constrained()->onDelete('cascade');
-            $table->timestamps();
-        });
-
-        // station_fuel_order_items
-        Schema::create('station_fuel_order_items', function (Blueprint $table) {
-            $table->id();
-            $table->float('received_quantity')->nullable();
             $table->foreignId('station_id')->constrained()->onDelete('cascade');
-            $table->foreignId('station_fuel_order_id')->constrained()->onDelete('cascade');
-            $table->foreignId('fuel_truck_config_part_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('tank_id')->nullable()->constrained()->onDelete('cascade');
+            $table->float('quantity_before_delivery')->nullable();
+            $table->float('quantity_after_delivery')->nullable();
+            $table->float('quantity_difference')->nullable();
             $table->timestamps();
         });
     }

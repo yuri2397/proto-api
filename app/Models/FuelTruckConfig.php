@@ -10,8 +10,8 @@ class FuelTruckConfig extends BaseModel
 {
     use HasFactory;
 
-    
-    protected $fillable = ['reference', 'total_quantity', 'total_amount', 'description', 'fuel_truck_id', 'fuel_truck_driver_id'];
+    const STATUSES = ['initiated', 'pending', 'confirmed', 'on_delivery', 'delivered', 'canceled'];
+    protected $fillable = ['reference', 'total_quantity', 'total_amount', 'description', 'fuel_truck_id', 'fuel_truck_driver_id', 'status', 'data'];
 
 
     public static function generateReference(): string

@@ -38,4 +38,10 @@ class Tank extends BaseModel
     {
         return $this->hasMany(Pump::class);
     }
+
+    // addQuantity
+    public function addQuantity($quantity)
+    {
+        $this->update(['current_quantity' => $this->current_quantity + $quantity]);
+    }
 }
