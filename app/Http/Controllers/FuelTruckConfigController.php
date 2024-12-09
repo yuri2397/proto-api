@@ -122,4 +122,17 @@ class FuelTruckConfigController extends Controller
         return response()->json($fuelTruckConfig);
     }
 
+    public function reportOfPartForStationInTank(Request $request)
+    {
+        $request->validate([
+            'station_id' => 'required|exists:stations,id',
+        ]);
+
+        $configs = FuelTruckConfig::whereHas('fuelTruckConfigParts', function ($q) use ($request) {
+            $q->where('station_id', $request->station_id);
+        })->get();
+
+        return view('fuel-truck-config.report-of-part-for-station-in-tank', compact('configs'));
+    }
+
 }

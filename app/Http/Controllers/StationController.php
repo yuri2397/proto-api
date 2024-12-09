@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\StationCreatedMail;
+use App\Models\FuelTruckConfigPart;
 use App\Models\StationCashRegister;
 use App\Models\TankStockFlow;
 use Illuminate\Support\Str;
@@ -182,15 +183,12 @@ class StationController extends Controller
             DB::beginTransaction();
             $now = now();
             $stationCashRegister = StationCashRegister::findOrFail($request->cash_register_id);
-
             
             $stationCashRegister->update([
-                'closing_amount' => $request->closing_amount ?? $this->calculateClosingAmount($stationCashRegister),
                 'closing_date' => $now,
             ]);
 
             foreach ($request->input('pumps') as $item) {
-                // get the pump cash register
                 $pumpCashRegister = $stationCashRegister->pumpCashRegisters()->where('pump_id', $item['pump_id'])->first();
                 $pumpCashRegister->update([
                     'closing_quantity' => $item['closing_quantity'],
@@ -206,8 +204,7 @@ class StationController extends Controller
                 ]);
             }
 
-            // update the station tank current quantity
-            $this->updateStationTankCurrentQuantity($station, $stationCashRegister);
+            $this->updateStationTankCurrentQuantity($stationCashRegister);
 
             DB::commit();
 
@@ -225,7 +222,7 @@ class StationController extends Controller
         
     }
 
-    private function updateStationTankCurrentQuantity(Station $station, StationCashRegister $stationCashRegister)
+    private function updateStationTankCurrentQuantity(StationCashRegister $stationCashRegister)
     {
         $tankRegisters = $stationCashRegister->tankCashRegisters;
         foreach ($tankRegisters as $tankRegister) {
@@ -233,9 +230,16 @@ class StationController extends Controller
             // tank_stock_flows
             TankStockFlow::create([
                 'quantity' => $tankRegister->closing_quantity,
+                'previous_quantity' => $tank->current_quantity,
                 'type' => 'cash_register_closing',
-                'user_id' => auth()->user()->id,
+                'user_id' => auth()->id(),
                 'tank_id' => $tank->id,
+                'dataable_type' => StationCashRegister::class,
+                'dataable_id' => $stationCashRegister->id,
+                'data' => [
+                    'station_cash_register_id' => $stationCashRegister->id,
+                    'tank_register_id' => $tankRegister->id,
+                ],
             ]);
             $tank->update([
                 'current_quantity' => $tankRegister->closing_quantity,
@@ -255,7 +259,6 @@ class StationController extends Controller
             'tanks.*.tank_id' => 'required|exists:tanks,id',
             'tanks.*.open_quantity' => 'required|numeric',
         ]);
-
        
         $currentCashRegister = $this->openedCashRegister($station);
         if ($currentCashRegister) {

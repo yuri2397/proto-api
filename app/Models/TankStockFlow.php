@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TankStockFlow extends BaseModel
 {
-    protected $fillable = ['tank_id', 'quantity', 'type', 'user_id', 'updated_at', 'data', 'dataable_type', 'dataable_id'];
+    protected $fillable = ['tank_id', 'quantity','previous_quantity', 'type', 'user_id', 'updated_at', 'data', 'dataable_type', 'dataable_id'];
 
     protected $casts = [
         'data' => 'array',

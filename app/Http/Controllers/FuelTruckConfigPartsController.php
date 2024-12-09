@@ -35,17 +35,19 @@ class FuelTruckConfigPartsController extends Controller
         try {
             $fuelTruckConfigPart->update($request->all());
 
-            $fuelTruckConfigPart->tank->addQuantity($request->received_quantity);
-
             \App\Models\TankStockFlow::create([
                 'quantity' => $request->received_quantity,
                 'type' => 'received',
                 'user_id' => auth()->id(),
+                'previous_quantity' => $fuelTruckConfigPart->tank->current_quantity,
                 'tank_id' => $fuelTruckConfigPart->tank_id,
                 'dataable_type' => FuelTruckConfigPart::class,
                 'dataable_id' => $fuelTruckConfigPart->id,
                 'data' => $fuelTruckConfigPart->toArray(),
             ]);
+
+            $fuelTruckConfigPart->tank->addQuantity($request->received_quantity);
+
             DB::commit();
             return response()->json($fuelTruckConfigPart);
         } catch (\Throwable $th) {
@@ -53,4 +55,6 @@ class FuelTruckConfigPartsController extends Controller
             return response()->json(['message' => $th->getMessage(), 'error' => true], 500);
         }
     }
+
+    
 }
