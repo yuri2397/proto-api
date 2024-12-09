@@ -40,6 +40,7 @@ class FuelTruckConfigPartsController extends Controller
                 'type' => 'received',
                 'user_id' => auth()->id(),
                 'previous_quantity' => $fuelTruckConfigPart->tank->current_quantity,
+                'after_quantity' => $fuelTruckConfigPart->tank->current_quantity + $request->received_quantity,
                 'tank_id' => $fuelTruckConfigPart->tank_id,
                 'dataable_type' => FuelTruckConfigPart::class,
                 'dataable_id' => $fuelTruckConfigPart->id,

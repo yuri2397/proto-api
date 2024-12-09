@@ -163,6 +163,7 @@ class StationController extends Controller
     {
         $request->validate([
             'cash_register_id' => 'required|exists:station_cash_registers,id',
+            'closing_amount' => 'required|numeric',
             'pumps' => 'required|array',
             'pumps.*.pump_id' => 'required|exists:pumps,id',
             'pumps.*.closing_quantity' => 'required|numeric',
@@ -185,6 +186,7 @@ class StationController extends Controller
             $stationCashRegister = StationCashRegister::findOrFail($request->cash_register_id);
             
             $stationCashRegister->update([
+                'closing_amount' => $request->closing_amount,
                 'closing_date' => $now,
             ]);
 
@@ -227,10 +229,11 @@ class StationController extends Controller
         $tankRegisters = $stationCashRegister->tankCashRegisters;
         foreach ($tankRegisters as $tankRegister) {
             $tank = $tankRegister->tank;
-            // tank_stock_flows
+            $mouvedQuantity = (float)$tank->current_quantity - (float)$tankRegister->closing_quantity;
             TankStockFlow::create([
-                'quantity' => $tankRegister->closing_quantity,
+                'quantity' => -$mouvedQuantity,
                 'previous_quantity' => $tank->current_quantity,
+                'after_quantity' =>  $tankRegister->closing_quantity,
                 'type' => 'cash_register_closing',
                 'user_id' => auth()->id(),
                 'tank_id' => $tank->id,
@@ -239,6 +242,9 @@ class StationController extends Controller
                 'data' => [
                     'station_cash_register_id' => $stationCashRegister->id,
                     'tank_register_id' => $tankRegister->id,
+                    'mouved_quantity' => $mouvedQuantity,
+                    'tank_register_closing_quantity' => $tankRegister->closing_quantity,
+                    'tank_register_opening_quantity' => $tankRegister->opening_quantity,
                 ],
             ]);
             $tank->update([
