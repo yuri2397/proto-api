@@ -44,4 +44,6 @@ class Tank extends BaseModel
     {
         $this->update(['current_quantity' => $this->current_quantity + $quantity]);
     }
+
+    
 }

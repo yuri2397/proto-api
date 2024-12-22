@@ -8,4 +8,9 @@ abstract class Controller
     {
         return response()->json($response, $status);
     }
+
+    protected function paginate($query, $perPage = 10, $page = 1, $columns = ['*'])
+    {
+        return $query->paginate($perPage, $columns, 'page', $page);
+    }
 }

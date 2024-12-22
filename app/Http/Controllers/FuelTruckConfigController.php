@@ -42,9 +42,7 @@ class FuelTruckConfigController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'fuel_truck_plate_number' => 'required|string',
-            'driver_name' => ['required', 'string', 'max:255'],
-            'driver_phone' => ['string', 'max:255'],
+            
             'fuel_truck_config_parts' => 'required|array',
             'fuel_truck_config_parts.*.type' => 'required|string',
             'fuel_truck_config_parts.*.quantity' => 'required|numeric|min:0',
@@ -55,21 +53,22 @@ class FuelTruckConfigController extends Controller
         DB::beginTransaction();
         try {
 
-            $fuelTruck = \App\Models\FuelTruck::create([
-                'matricule' => $request->fuel_truck_plate_number,
-            ]);
+            // $fuelTruck = \App\Models\FuelTruck::create([
+            //     'matricule' => $request->fuel_truck_plate_number,
+            // ]);
 
-            $fuelTruckDriver = \App\Models\FuelTruckDriver::create([
-                'name' => $request->driver_name,
-                'phone' => $request->driver_phone,
-            ]);
+            // $fuelTruckDriver = \App\Models\FuelTruckDriver::create([
+            //     'name' => $request->driver_name,
+            //     'phone' => $request->driver_phone,
+            // ]);
 
             $total_quantity = collect($request->fuel_truck_config_parts)->sum('quantity');
 
             $config = \App\Models\FuelTruckConfig::create([
                 'total_quantity' => $total_quantity,
-                'fuel_truck_id' => $fuelTruck->id,
-                'fuel_truck_driver_id' => $fuelTruckDriver->id,
+                'fuel_truck_id' => 1,
+                'status' => 'on_delivery',
+                'fuel_truck_driver_id' => 1,
             ]);
 
             foreach ($request->fuel_truck_config_parts as $part) {

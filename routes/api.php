@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PumpOperatorController;
+use App\Http\Controllers\ShopProductCategoryController;
+use App\Http\Controllers\ShopProductController;
+use App\Http\Controllers\ShopProductSectionController;
 use App\Http\Controllers\StationCashRegisterController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -25,15 +29,44 @@ Route::prefix('stations')->middleware('auth:sanctum')->group(function () {
     Route::post('/', [StationController::class, 'store']);
     Route::get('/', [StationController::class, 'index']);
     Route::get('my-station', [StationController::class, 'getMyStation']);
+    Route::get('{station}/report-dashboard', [StationController::class, 'reportDashboard']);
     Route::get('/{station}', [StationController::class, 'show']);
     Route::put('{station}', [StationController::class, 'update']);
     Route::delete('{station}', [StationController::class, 'destroy']);
+
 
     Route::post('{station}/open-cash-register', [StationController::class, 'openCashRegister']);
     Route::post('{station}/close-cash-register', [StationController::class, 'closeCashRegister']);
     Route::get('{station}/opened-cash-register', [StationController::class, 'openedCashRegister']);
 });
 
+Route::prefix('products')->middleware('auth:sanctum')->group(function () {
+    Route::post('/', [ProductController::class, 'store']);
+    Route::post('/many', [ProductController::class, 'storeMany']);
+    Route::get('/', [ProductController::class, 'index']);
+    Route::get('/{product}', [ProductController::class, 'show']);
+    Route::put('/{product}', [ProductController::class, 'update']);
+    Route::delete('/{product}', [ProductController::class, 'destroy']);
+});
+
+Route::prefix('shop-products')->middleware('auth:sanctum')->group(function () {
+    Route::post('/', [ShopProductController::class, 'store']);
+    Route::get('/', [ShopProductController::class, 'index']);
+    Route::get('/stats', [ShopProductController::class, 'stats']);
+    Route::get('/{shopProduct}', [ShopProductController::class, 'show']);
+    Route::put('/{shopProduct}', [ShopProductController::class, 'update']);
+    Route::delete('/{shopProduct}', [ShopProductController::class, 'destroy']);
+
+});
+//shop-product-sections
+Route::prefix('shop-product-sections')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [ShopProductSectionController::class, 'index']);
+});
+
+// shop-products-categories
+Route::prefix('shop-products-categories')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [ShopProductCategoryController::class, 'index']);
+});
 
 Route::prefix('pump-operators')->middleware('auth:sanctum')->group(function () {
     Route::post('/', [PumpOperatorController::class, 'store']);
@@ -51,6 +84,12 @@ Route::prefix('tanks')->middleware('auth:sanctum')->group(function () {
     Route::put('{tank}', [App\Http\Controllers\TankController::class, 'update']);
     Route::delete('{tank}', [App\Http\Controllers\TankController::class, 'destroy']);
 });
+
+// dashboard
+Route::prefix('dashboard')->middleware('auth:sanctum')->group(function () {
+    Route::get('/admin-dashboard', [App\Http\Controllers\DashboardController::class, 'adminDashboard']);
+});
+
 
 // orders
 Route::prefix('fuel-truck-configs')->middleware('auth:sanctum')->group(function () {
@@ -79,6 +118,4 @@ Route::prefix('station-cash-registers')->middleware('auth:sanctum')->group(funct
     Route::get('/', [App\Http\Controllers\StationCashRegisterController::class, 'index']);
 });
 
-Route::prefix('transactions')->middleware('auth:sanctum')->group(function () {
-    
-});
+Route::prefix('transactions')->middleware('auth:sanctum')->group(function () {});

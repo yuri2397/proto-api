@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\StationCreatedMail;
+use App\Models\FuelTruckConfig;
 use App\Models\FuelTruckConfigPart;
 use App\Models\StationCashRegister;
 use App\Models\TankStockFlow;
@@ -84,12 +85,12 @@ class StationController extends Controller
     {
         $query = Station::with($request->with ?? []);
 
+        $query->where('status', 'active');
+
+
         // Application des filtres
         if ($request->has('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
-        }
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
         }
         if ($request->has('type')) {
             $query->where('type', $request->type);
@@ -317,5 +318,64 @@ class StationController extends Controller
                 'trace' => $e->getTrace()
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+
+    // report dasboard
+    public function reportDashboard(Request $request, Station $station)
+    {
+       $request->validate([
+        'from' => 'required|date',
+        'to' => 'required|date',
+       ]);
+
+        /**
+         * Je veux faire un tableau de bord avec les données de la station. Il fait pouvoir filtrer dans le temp.
+         * Commandes de carburant :
+         * 
+         * Dates des commandes et statut (en attente, livrée, annulée).
+         * Niveau de stock actuel pour chaque type de carburant.
+         * Ventes journalières :
+         * Montant total des ventes par type de produit/service (carburant, accessoires, services de lavage, etc.).
+         * Nombre de transactions.
+         * Graphique des ventes horaires ou par type de produit.
+         * Caisse journalière :
+         * Entrées et sorties de caisse.
+         * Solde actuel de la caisse.
+         * Total des paiements par méthode (espèces, carte bancaire, mobile money, etc.).
+
+         * Gestion des stocks
+         * Niveaux des réservoirs :
+         * Volume actuel de chaque réservoir de carburant (en litres).
+         * Alertes pour les stocks faibles.
+         * Inventaire des produits :
+         * Quantité restante des produits en boutique.
+         * Produits à commander en urgence.
+
+         * Gestion des employés
+         * Performances :
+         * Rapport des ventes par employé.
+         * Horaires et présences.
+         * Notifications pour les absences ou retards.
+
+         * Chiffre d’affaires quotidien, hebdomadaire, mensuel.
+         */
+
+         $data = [];
+
+        // Niveaux des réservoirs betwween from and to tankstockflows   
+        if ($request->has('from') && $request->has('to')) {
+            $tankStockFlows = TankStockFlow::where('station_id', $station->id)
+                ->whereBetween('created_at', [$request->from, $request->to])
+                ->get();
+            $data['tank_levels'] = $tankStockFlows->groupBy('tank_id')->map(function ($group) {
+                return [
+                    'tank_id' => $group->first()->tank_id,
+                    'tank_name' => $group->first()->tank->name,
+                    'tank_current_quantity' => $group->sum('after_quantity'),
+                ];
+            });
+        }
+
     }
 }

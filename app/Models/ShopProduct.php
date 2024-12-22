@@ -1,0 +1,82 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\BaseModel;
+
+class ShopProduct extends BaseModel
+{
+    protected $fillable = ['name', 'reference', 'ean13', 'description', 'default_selling_price', 'default_buying_price', 'status', 'product_id', 'station_id', 'shop_product_section_id'];
+    protected $appends = ['quantity'];
+    // boot reference
+    public static function boot()
+    {
+        parent::boot();
+        self::creating(function ($model) {
+            $model->reference = 'SP-' . date('YmdHis') . '-' . rand(100, 999);
+        });
+    }
+
+    // get quantity == sum of shopProductItems->quantity
+    public function getQuantityAttribute()
+    {
+        return $this->shopProductItems->sum('quantity');
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    public function station()
+    {
+        return $this->belongsTo(Station::class);
+    }
+
+    public function shopProductItems()
+    {
+        return $this->hasMany(ShopProductItem::class);
+    }
+
+    public function shopProductSection()
+    {
+        return $this->belongsTo(ShopProductSection::class);
+    }
+
+    public function scopeWith($query, $with)
+    {
+        return $query->with($with);
+    }
+
+    public function scopeWhereStationId($query, $stationId)
+    {
+        return $query->where('station_id', $stationId);
+    }
+
+    public function scopeWhereProductId($query, $productId)
+    {
+        return $query->where('product_id', $productId);
+    }
+
+    public function scopeWhereStatus($query, $status)
+    {
+        return $query->where('status', $status);
+    }
+
+    public function scopeWhereReference($query, $reference)
+    {
+        return $query->where('reference', $reference);
+    }
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('name', 'like', '%' . $search . '%')
+            ->orWhere('reference', 'like', '%' . $search . '%')
+            ->orWhereHas('product', function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->orWhere('ean13', 'like', '%' . $search . '%');
+    }
+
+    // quantité en stock == some shopProductItems->quantity
+}

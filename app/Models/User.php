@@ -31,6 +31,7 @@ class User extends Authenticatable
         'phone',
         'password',
         'status',
+        'email_verified_at',
         'owner_type',
         'owner_id',
     ];
