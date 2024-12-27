@@ -6,14 +6,33 @@ use App\Models\BaseModel;
 
 class ShopProduct extends BaseModel
 {
-    protected $fillable = ['name', 'reference', 'ean13', 'description', 'default_selling_price', 'default_buying_price', 'status', 'product_id', 'station_id', 'shop_product_section_id'];
-    protected $appends = ['quantity'];
+    const STATUS_ACTIVE = 'active';
+    const STATUS_INACTIVE = 'inactive';
+
+    const STATUS_CHOICES = [
+        self::STATUS_ACTIVE,
+        self::STATUS_INACTIVE,
+    ];
+
+    protected $fillable = [
+        'name',
+        'reference',
+        'ean13',
+        'description',
+        'default_selling_price',
+        'default_buying_price',
+        'status',
+        'product_id',
+        'station_id',
+        'shop_product_section_id'
+    ];
+
     // boot reference
     public static function boot()
     {
         parent::boot();
         self::creating(function ($model) {
-            $model->reference = 'SP-' . date('YmdHis') . '-' . rand(100, 999);
+            $model->reference = 'SP-' . date('YmdHis');
         });
     }
 
@@ -36,6 +55,12 @@ class ShopProduct extends BaseModel
     public function shopProductItems()
     {
         return $this->hasMany(ShopProductItem::class);
+    }
+
+    // flow
+    public function shopProductFlows()
+    {
+        return $this->hasMany(ShopProductFlow::class);
     }
 
     public function shopProductSection()
@@ -77,6 +102,4 @@ class ShopProduct extends BaseModel
             })
             ->orWhere('ean13', 'like', '%' . $search . '%');
     }
-
-    // quantité en stock == some shopProductItems->quantity
 }

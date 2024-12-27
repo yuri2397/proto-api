@@ -24,7 +24,15 @@ class ShopProductFlow extends BaseModel
         self::TYPE_STOCK_ADJUSTMENT,
     ];
 
-    protected $fillable = ['type', 'quantity', 'quantity_before', 'quantity_after', 'shop_product_id', 'data', 'shop_product_item_id', 'user_id'];
+    protected $fillable = [
+        'type',
+        'quantity',
+        'quantity_before',
+        'quantity_after',
+        'shop_product_id',
+        'data',
+        'user_id'
+    ];
 
     // cast
     protected $casts = [
@@ -36,16 +44,13 @@ class ShopProductFlow extends BaseModel
         return $this->belongsTo(ShopProduct::class);
     }
 
-    public function shopProductItem()
-    {
-        return $this->belongsTo(ShopProductItem::class);
-    }
-
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('type', 'like', '%' . $search . '%');
+    }
 }
-
-

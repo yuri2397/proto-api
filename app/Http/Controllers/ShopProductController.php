@@ -6,7 +6,9 @@ use App\Models\Product;
 use App\Models\ShopProduct;
 use App\Models\ShopProductFlow;
 use App\Models\ShopProductItem;
+use App\Models\ShopProductSection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ShopProductController extends Controller
@@ -18,14 +20,23 @@ class ShopProductController extends Controller
             'station_id' => 'required|exists:stations,id',
         ]);
 
+        $expiredProducts = ShopProductItem::where('expiration_date', '<', now())
+            ->whereHas('shopProduct', function ($query) use ($request) {
+                $query->where('station_id', $request->station_id);
+            })
+            ->sum('quantity');
+
         $totalActive = ShopProduct::where('status', 'active')
             ->where('station_id', $request->station_id)->count();
+
         $totalInactive = ShopProduct::where('status', 'inactive')
             ->where('station_id', $request->station_id)->count();
-        $totalRupture = ShopProduct::where('quantity', '<=', 0)
-            ->where('station_id', $request->station_id)->count();
 
-        return $this->jsonResponse(['totalActive' => $totalActive, 'totalInactive' => $totalInactive, 'totalRupture' => $totalRupture]);
+        $totalRupture = ShopProduct::whereHas('shopProductItems', function ($query) {
+            $query->where('quantity', '<=', 0);
+        })->count();
+
+        return $this->jsonResponse(['totalActive' => $totalActive, 'totalInactive' => $totalInactive, 'totalRupture' => $totalRupture, 'expiredProducts' => $expiredProducts]);
     }
 
     /**
@@ -33,7 +44,7 @@ class ShopProductController extends Controller
      */
     public function index(Request $request)
     {
-        $shopProducts = ShopProduct::with($request->with ?? []);
+        $shopProducts = ShopProduct::with($request->with ?? [])->whereStatus('active');
 
         // search 
         if ($request->has('search')) {
@@ -44,6 +55,10 @@ class ShopProductController extends Controller
             $shopProducts->whereStationId($request->station_id);
         }
 
+        $userOwner = Auth::user()->owner;
+        // get for only the owner
+        $shopProducts->whereStationId($userOwner->id);
+
         if ($request->has('product_id')) {
             $shopProducts->whereProductId($request->product_id);
         }
@@ -52,6 +67,8 @@ class ShopProductController extends Controller
             $shopProducts->whereStatus($request->status);
         }
 
+        // order by name
+        $shopProducts->orderBy('name');
         // paginate
         $paginated = $this->paginate($shopProducts, $request->perPage ?? 10, $request->page ?? 1, $request->columns ?? ['*']);
         return $this->jsonResponse($paginated);
@@ -73,16 +90,12 @@ class ShopProductController extends Controller
 
         DB::beginTransaction();
         try {
-            // if productId is not a number, get the product id from the product name
             if (is_numeric($request->productId)) {
                 $product = Product::find($request->productId);
                 if (!$product) {
                     return $this->jsonResponse(['message' => 'Product not found'], 404);
                 }
-                $request->merge(['name' => $product->name]);
             } else {
-                $request->merge(['name' => $request->productId]);
-                // create product
                 $product = Product::create([
                     'name' => $request->productId,
                     'status' => 'active',
@@ -91,14 +104,27 @@ class ShopProductController extends Controller
                     'description' => null,
                     'default_price' => null,
                 ]);
-                $request->merge(['product_id' => $product->id]);
             }
 
-            $shopProduct = ShopProduct::create($request->only('name', 'status', 'ean13', 'category', 'description', 'default_price', 'product_id'));
+            $userOwner = Auth::user()->owner;
+
+            $shopProduct = ShopProduct::create(
+                [
+                    'name' => $product->name,
+                    'status' => 'active',
+                    'ean13' => $product->ean13,
+                    'default_selling_price' => $request->sellingPrice,
+                    'default_buying_price' => $request->buyingPrice,
+                    'product_id' => $product->id,
+                    'quantity' => $request->quantity,
+                    'shop_product_section_id' => $request->productSectionId,
+                    'station_id' => $userOwner->id,
+                ]
+            );
 
             // create item 
             $item = ShopProductItem::create([
-                'name' => $request->name,
+                'name' => $product->name,
                 'selling_price' => $request->sellingPrice,
                 'buying_price' => $request->buyingPrice,
                 'quantity' => $request->quantity,
@@ -126,9 +152,10 @@ class ShopProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShopProduct $shopProduct)
+    public function show(ShopProduct $shopProduct, Request $request)
     {
-        //
+        $shopProduct->load($request->with ?? []);
+        return $this->jsonResponse($shopProduct);
     }
 
     /**
@@ -136,7 +163,47 @@ class ShopProductController extends Controller
      */
     public function update(Request $request, ShopProduct $shopProduct)
     {
-        //
+        $request->validate([
+            'defaultSellingPrice' => 'required|numeric',
+            'defaultBuyingPrice' => 'required|numeric',
+            'shopProductSectionId' => 'required',
+            'category' => 'required|string|max:255',
+            'productId' => 'required',
+            'status' => 'required|string|in:active,inactive',
+        ]);
+
+        // if productId is a string then we search for the product in the database and if it doesn't exist we create it
+        if (is_string($request->productId)) {
+            $product = Product::where('name', $request->productId)->first();
+            if (!$product) {
+                $product = Product::create(['name' => $request->productId, 'status' => 'active', 'category' => $request->category]);
+            }
+        } else {
+            $product = Product::find($request->productId);
+        }
+
+        // if shopProductSectionId is a string then we search for the product section in the database and if it doesn't exist we create it
+        if (is_string($request->shopProductSectionId)) {
+            $productSection = ShopProductSection::where('name', $request->shopProductSectionId)->first();
+            if (!$productSection) {
+                $productSection = ShopProductSection::create(['name' => $request->shopProductSectionId]);
+            }
+        } else {
+            $productSection = ShopProductSection::find($request->shopProductSectionId);
+        }
+
+        $shopProduct->update([
+            'default_selling_price' => $request->defaultSellingPrice,
+            'default_buying_price' => $request->defaultBuyingPrice,
+            'shop_product_section_id' => $productSection->id,
+            'product_id' => $product->id,
+            'status' => $request->status,
+        ]);
+
+        // if status change, update shopProductItem status
+        $shopProduct->shopProductItems()->update(['status' => $request->status]);
+
+        return $this->jsonResponse($shopProduct);
     }
 
     /**
@@ -145,5 +212,33 @@ class ShopProductController extends Controller
     public function destroy(ShopProduct $shopProduct)
     {
         //
+    }
+
+    // shopProductFlows
+    public function shopProductFlows(ShopProduct $shopProduct, Request $request)
+    {
+        $request->validate([
+            'perPage' => 'required|numeric',
+            'page' => 'required|numeric',
+            'with' => 'nullable|array',
+            'search' => 'nullable|string',
+        ]);
+
+        $query = ShopProductFlow::with($request->with ?? [])->where('shop_product_id', $shopProduct->id);
+
+        if ($request->has('search')) {
+            $query->search($request->search);
+        }
+
+        // type 
+        if ($request->has('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // order by created_at
+        $query->orderBy('created_at', 'desc');
+
+        $paginated = $this->paginate($query, $request->perPage, $request->page, $request->columns ?? ['*']);
+        return $this->jsonResponse($paginated);
     }
 }

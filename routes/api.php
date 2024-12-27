@@ -2,9 +2,12 @@
 
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PumpOperatorController;
+use App\Http\Controllers\ShopCashRegisterController;
+use App\Http\Controllers\ShopOrderController;
 use App\Http\Controllers\ShopProductCategoryController;
 use App\Http\Controllers\ShopProductController;
 use App\Http\Controllers\ShopProductSectionController;
+use App\Http\Controllers\ShopSaleController;
 use App\Http\Controllers\StationCashRegisterController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +26,20 @@ Route::prefix('users')->group(function () {
         Route::get('profile', [UserController::class, 'profile']);
     });
 });
+
+// shop cash register
+Route::prefix('shop-cash-registers')->middleware('auth:sanctum')->group(function () {
+    Route::post('open', [ShopCashRegisterController::class, 'openCashRegister']);
+    Route::post('close', [ShopCashRegisterController::class, 'closeCashRegister']);
+    Route::get('current', [ShopCashRegisterController::class, 'currentOpenCashRegister']);
+});
+
+// shop sales
+Route::prefix('shop-sales')->middleware('auth:sanctum')->group(function () {
+    Route::post('/', [ShopSaleController::class, 'store']);
+    Route::get('/', [ShopSaleController::class, 'index']);
+});
+
 
 
 Route::prefix('stations')->middleware('auth:sanctum')->group(function () {
@@ -49,13 +66,21 @@ Route::prefix('products')->middleware('auth:sanctum')->group(function () {
     Route::delete('/{product}', [ProductController::class, 'destroy']);
 });
 
+Route::prefix('shop-orders')->middleware('auth:sanctum')->group(
+    function () {
+        Route::get('/', [ShopOrderController::class, 'index']);
+    }
+);
+
 Route::prefix('shop-products')->middleware('auth:sanctum')->group(function () {
     Route::post('/', [ShopProductController::class, 'store']);
     Route::get('/', [ShopProductController::class, 'index']);
     Route::get('/stats', [ShopProductController::class, 'stats']);
+    Route::get('/{shopProduct}/flows', [ShopProductController::class, 'shopProductFlows']);
     Route::get('/{shopProduct}', [ShopProductController::class, 'show']);
     Route::put('/{shopProduct}', [ShopProductController::class, 'update']);
     Route::delete('/{shopProduct}', [ShopProductController::class, 'destroy']);
+
 
 });
 //shop-product-sections
