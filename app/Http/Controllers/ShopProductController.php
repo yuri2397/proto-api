@@ -149,6 +149,62 @@ class ShopProductController extends Controller
         }
     }
 
+    // store many shop products
+    public function storeMany(Request $request)
+    {
+
+        DB::beginTransaction();
+        try {
+            $products = Product::all();
+            foreach ($products as $product) {
+                $userOwner = Auth::user()->owner;
+                $shop_product_section = ShopProductSection::where('name', $product->category)->first();
+                if (!$shop_product_section) {
+                    $shop_product_section = ShopProductSection::create(['name' => $product->category, 'station_id' => $userOwner->id]);
+                }
+
+                $shopProduct = ShopProduct::create(
+                    [
+                        'name' => $product->name,
+                        'status' => 'active',
+                        'ean13' => $product->ean13,
+                        'default_selling_price' => $product->default_price,
+                        'default_buying_price' => $product->default_price,
+                        'product_id' => $product->id,
+                        'quantity' => random_int(1, 100),
+                        'shop_product_section_id' => $shop_product_section->id,
+                        'station_id' => $userOwner->id,
+                    ]
+                );
+
+                // create item 
+                $item = ShopProductItem::create([
+                    'name' => $product->name,
+                    'selling_price' => $product->default_price,
+                    'buying_price' => $product->default_price,
+                    'quantity' => random_int(1, 100),
+                    'shop_product_id' => $shopProduct->id,
+                ]);
+
+                // create flow
+                ShopProductFlow::create([
+                    'type' => ShopProductFlow::TYPE_STOCK_IN,
+                    'quantity' => $item->quantity,
+                    'quantity_before' => 0,
+                    'quantity_after' => $item->quantity,
+                    'shop_product_id' => $shopProduct->id,
+                    'shop_product_item_id' => $item->id,
+                    'user_id' => auth()->user()->id,
+                ]);
+            }
+            DB::commit();
+            return $this->jsonResponse($products);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->jsonResponse(['message' => $th->getMessage(), 'errors' => $th->getTrace()], 500);
+        }
+    }
+
     /**
      * Display the specified resource.
      */

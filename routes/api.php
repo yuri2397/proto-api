@@ -6,6 +6,7 @@ use App\Http\Controllers\ShopCashRegisterController;
 use App\Http\Controllers\ShopOrderController;
 use App\Http\Controllers\ShopProductCategoryController;
 use App\Http\Controllers\ShopProductController;
+use App\Http\Controllers\ShopProductProviderController;
 use App\Http\Controllers\ShopProductSectionController;
 use App\Http\Controllers\ShopSaleController;
 use App\Http\Controllers\StationCashRegisterController;
@@ -29,15 +30,22 @@ Route::prefix('users')->group(function () {
 
 // shop cash register
 Route::prefix('shop-cash-registers')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [ShopCashRegisterController::class, 'index']);
     Route::post('open', [ShopCashRegisterController::class, 'openCashRegister']);
     Route::post('close', [ShopCashRegisterController::class, 'closeCashRegister']);
     Route::get('current', [ShopCashRegisterController::class, 'currentOpenCashRegister']);
+    Route::get('current-cash-register-details/{cashRegisterId}', [ShopCashRegisterController::class, 'currentCashRegisterDetails']);
+    Route::get('dashboard', [ShopCashRegisterController::class, 'dashboard']);
+    // courbe d'evolution
+    Route::get('sales-evolutions', [ShopCashRegisterController::class, 'salesEvolutions']);
 });
 
 // shop sales
 Route::prefix('shop-sales')->middleware('auth:sanctum')->group(function () {
-    Route::post('/', [ShopSaleController::class, 'store']);
+    Route::get('/{shopSale}', [ShopSaleController::class, 'show']);
     Route::get('/', [ShopSaleController::class, 'index']);
+    Route::post('/', [ShopSaleController::class, 'store']);
+
 });
 
 
@@ -59,21 +67,26 @@ Route::prefix('stations')->middleware('auth:sanctum')->group(function () {
 
 Route::prefix('products')->middleware('auth:sanctum')->group(function () {
     Route::post('/', [ProductController::class, 'store']);
-    Route::post('/many', [ProductController::class, 'storeMany']);
+    Route::post('/many', [ProductController::class, 'storeMany'])->withoutMiddleware('auth:sanctum');
     Route::get('/', [ProductController::class, 'index']);
     Route::get('/{product}', [ProductController::class, 'show']);
     Route::put('/{product}', [ProductController::class, 'update']);
     Route::delete('/{product}', [ProductController::class, 'destroy']);
 });
 
-Route::prefix('shop-orders')->middleware('auth:sanctum')->group(
-    function () {
-        Route::get('/', [ShopOrderController::class, 'index']);
-    }
-);
+Route::prefix('shop-orders')->middleware('auth:sanctum')->group(function () {
+    Route::get('/{shopOrder}/download-pdf', [ShopOrderController::class, 'downloadPdf']);
+    Route::get('/', [ShopOrderController::class, 'index']);
+    Route::post('/', [ShopOrderController::class, 'store']);
+    Route::get('/{shopOrder}', [ShopOrderController::class, 'show']);
+    Route::put('/{shopOrder}', [ShopOrderController::class, 'update']);
+    Route::delete('/{shopOrder}', [ShopOrderController::class, 'destroy']);
+
+});
 
 Route::prefix('shop-products')->middleware('auth:sanctum')->group(function () {
     Route::post('/', [ShopProductController::class, 'store']);
+    Route::post('/many', [ShopProductController::class, 'storeMany']);
     Route::get('/', [ShopProductController::class, 'index']);
     Route::get('/stats', [ShopProductController::class, 'stats']);
     Route::get('/{shopProduct}/flows', [ShopProductController::class, 'shopProductFlows']);
@@ -83,6 +96,16 @@ Route::prefix('shop-products')->middleware('auth:sanctum')->group(function () {
 
 
 });
+
+// shop-product-providers/
+Route::prefix('shop-product-providers')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [ShopProductProviderController::class, 'index']);
+    Route::get('/{shopProductProvider}', [ShopProductProviderController::class, 'show']);
+    Route::post('/', [ShopProductProviderController::class, 'store']);
+    Route::put('/{shopProductProvider}', [ShopProductProviderController::class, 'update']);
+    Route::delete('/{shopProductProvider}', [ShopProductProviderController::class, 'destroy']);
+});
+
 //shop-product-sections
 Route::prefix('shop-product-sections')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [ShopProductSectionController::class, 'index']);

@@ -16,11 +16,9 @@ return new class extends Migration
             $table->string('reference')->nullable();
             $table->string('status')->default('pending');
             $table->dateTime('date');
-            $table->string('partner_name')->nullable();
-            $table->string('partner_phone')->nullable();
-            $table->string('partner_address')->nullable();
             $table->foreignId('station_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('shop_product_provider_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

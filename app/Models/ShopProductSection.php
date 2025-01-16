@@ -13,7 +13,7 @@ class ShopProductSection extends BaseModel
     {
         parent::boot();
         self::creating(function ($model) {
-            $model->reference = 'SPS-' . date('YmdHis') . '-' . rand(100, 999);
+            $model->reference = 'SPS-' . date('YmdHis') . rand(100, 999);
         });
     }
 

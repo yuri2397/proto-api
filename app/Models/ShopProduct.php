@@ -27,16 +27,29 @@ class ShopProduct extends BaseModel
         'shop_product_section_id'
     ];
 
-    // boot reference
+    // Boot reference
     public static function boot()
     {
         parent::boot();
+
         self::creating(function ($model) {
-            $model->reference = 'SP-' . date('YmdHis');
+            // Récupérer la dernière référence
+            $lastRecord = self::orderBy('id', 'desc')->first();
+
+            if ($lastRecord && $lastRecord->reference) {
+                // Extraire la partie numérique de la référence et l'incrémenter
+                $lastReferenceNumber = (int) filter_var($lastRecord->reference, FILTER_SANITIZE_NUMBER_INT);
+                $newReferenceNumber = $lastReferenceNumber + 1;
+
+                // Générer une nouvelle référence avec le préfixe "SP"
+                $model->reference = 'SP' . str_pad($newReferenceNumber, 6, '0', STR_PAD_LEFT);
+            } else {
+                // Si aucune référence, utiliser la date actuelle
+                $model->reference = 'SP' . now()->format('Ymd') . '001'; // Exemple : SP20250116001
+            }
         });
     }
 
-    // get quantity == sum of shopProductItems->quantity
     public function getQuantityAttribute()
     {
         return $this->shopProductItems->sum('quantity');

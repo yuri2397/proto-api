@@ -44,7 +44,26 @@ class ShopSale extends BaseModel
         'remarks',
         'status',
         'payment_method',
+        'ticket_number',
     ];
+
+    // boot
+    protected static function boot()
+    {
+        parent::boot();
+        self::creating(function ($model) {
+            $model->ticket_number = $model->generateTicketNumber();
+        });
+    }
+
+    public function generateTicketNumber()
+    {
+        $lastSale = $this->where('station_id', $this->station_id)->orderBy('created_at', 'desc')->first();
+        if ($lastSale) {
+            return 'T-' . ($lastSale->ticket_number + 1);
+        }
+        return 'T-1';
+    }
 
     public function station(): BelongsTo
     {
@@ -69,7 +88,7 @@ class ShopSale extends BaseModel
     public function scopeSearch($query, $search)
     {
         // search by date user, product name, payment method, status
-        return $query->where('type', 'like', '%' . $search . '%')
+        return $query->where('payment_method', 'like', '%' . $search . '%')
             ->orWhereHas('user', function ($query) use ($search) {
                 $query->where('name', 'like', '%' . $search . '%');
             })

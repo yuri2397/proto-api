@@ -8,6 +8,7 @@ use App\Models\ShopProductFlow;
 use App\Models\ShopProductItem;
 use App\Models\ShopSale;
 use App\Models\ShopSaleItem;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -20,6 +21,14 @@ class ShopSaleController extends Controller
         if ($request->has('search')) {
             $query->search($request->search);
         }
+
+        // cashregister id 
+        if ($request->has('cashRegisterId')) {
+            $query->where('cash_register_id', $request->cashRegisterId);
+        }
+
+        $query->orderBy('created_at', 'desc');
+
         $paginated = $this->paginate($query, $request->perPage, $request->page, $request->columns ?? ['*']);
         return $this->jsonResponse($paginated);
     }
@@ -163,5 +172,12 @@ class ShopSaleController extends Controller
             DB::rollBack();
             return $this->jsonResponse(['message' => $e->getMessage(), 'trace' => $e->getTrace()], 500);
         }
+    }
+
+    // show
+    public function show($id): JsonResponse
+    {
+        $sale = ShopSale::with(['shopSaleItems.shopProduct', 'user'])->find($id);
+        return $this->jsonResponse($sale);
     }
 }
