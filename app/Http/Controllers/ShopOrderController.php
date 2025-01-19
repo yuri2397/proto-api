@@ -25,6 +25,7 @@ class ShopOrderController extends Controller
             'search' => 'nullable|string',
             'stationId' => 'nullable|integer',
             'userId' => 'nullable|integer',
+            'shopProductProviderId' => 'nullable|integer',
         ]);
         $shopOrders = ShopOrder::with($request->with ?? []);
 
@@ -36,6 +37,11 @@ class ShopOrderController extends Controller
         // user id 
         if ($request->userId) {
             $shopOrders->where('user_id', $request->userId);
+        }
+
+        // shop product provider id
+        if ($request->shopProductProviderId) {
+            $shopOrders->where('shop_product_provider_id', $request->shopProductProviderId);
         }
 
         // search 
@@ -58,6 +64,7 @@ class ShopOrderController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'order_number' => 'required|string',
             'shop_product_provider_id' => 'required|exists:shop_product_providers,id',
             'date' => 'required|date:Y-m-d H:i:s',
             'items' => 'required|array',
@@ -141,7 +148,7 @@ class ShopOrderController extends Controller
      */
     public function show(ShopOrder $shopOrder)
     {
-        $shopOrder->load('shopOrderItems.shopProductItem', 'user');
+        $shopOrder->load('shopOrderItems.shopProductItem', 'user', 'shopProductProvider', 'station', 'shopOrderInvoice');
         return $this->jsonResponse($shopOrder);
     }
 
@@ -164,6 +171,13 @@ class ShopOrderController extends Controller
     // download pdf
     public function downloadPdf(ShopOrder $shopOrder)
     {
-        return view('shop_order_details', ['shopOrder' => $shopOrder]);
+        $shopOrder->load('shopOrderItems.shopProductItem', 'user', 'shopProductProvider', 'station', 'shopOrderInvoice');
+        return view('pdf.shop_order_details', ['shopOrder' => $shopOrder]);
+    }
+
+    // download bill
+    public function downloadBill(ShopOrder $shopOrder)
+    {
+        return view('pdf.shop_order_bill', ['shopOrder' => $shopOrder]);
     }
 }

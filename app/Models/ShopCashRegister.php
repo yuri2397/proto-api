@@ -21,7 +21,8 @@ class ShopCashRegister extends BaseModel
     ];
  
     protected $fillable = [
-        'date',
+        'open_date',
+        'close_date',
         'starting_balance',
         'ending_balance',
         'difference',
@@ -31,6 +32,11 @@ class ShopCashRegister extends BaseModel
         'opened_by',
         'closed_by',
         'status',
+    ];
+
+    protected $casts = [
+        'open_date' => 'datetime',
+        'close_date' => 'datetime',
     ];
 
     // hidden sales

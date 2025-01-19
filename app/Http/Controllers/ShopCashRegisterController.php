@@ -25,6 +25,12 @@ class ShopCashRegisterController extends Controller
         return $this->jsonResponse($paginate);
     }
 
+    public function show(ShopCashRegister $shopCashRegister, Request $request)
+    {
+        $shopCashRegister->load($request->with ?? []);
+        return $shopCashRegister;
+    }
+
     public function dashboard() 
     {
         // total sales paid
@@ -139,6 +145,7 @@ class ShopCashRegisterController extends Controller
         $cashRegister->station_id = $stationId;
         $cashRegister->starting_balance = $request->starting_balance;
         $cashRegister->open_remarks = $request->open_remarks;
+        $cashRegister->open_date = now();
         $cashRegister->opened_by = auth()->user()->id;
         $cashRegister->status = ShopCashRegister::STATUS_OPEN;
         $cashRegister->save();
@@ -166,6 +173,7 @@ class ShopCashRegisterController extends Controller
         $currentOpenCashRegister->ending_balance = $request->ending_balance;
         $currentOpenCashRegister->close_remarks = $request->close_remarks;
         $currentOpenCashRegister->status = ShopCashRegister::STATUS_CLOSED;
+        $currentOpenCashRegister->close_date = now();
         // difference
         $currentOpenCashRegister->difference = ($currentOpenCashRegister->total_cash_sale - (int)$request->ending_balance);
         $currentOpenCashRegister->closed_by = auth()->user()->id;

@@ -152,7 +152,6 @@ class ShopProductController extends Controller
     // store many shop products
     public function storeMany(Request $request)
     {
-
         DB::beginTransaction();
         try {
             $products = Product::all();

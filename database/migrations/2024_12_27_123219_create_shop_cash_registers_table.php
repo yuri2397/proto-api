@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('shop_cash_registers', function (Blueprint $table) {
             $table->id();
-            $table->date('date')->default(now());
+            $table->datetime('open_date')->default(now());
+            $table->datetime('close_date')->nullable();
             $table->float('starting_balance');
             $table->float('ending_balance')->nullable();
             $table->float('difference')->nullable();

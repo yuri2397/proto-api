@@ -4,12 +4,12 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PumpOperatorController;
 use App\Http\Controllers\ShopCashRegisterController;
 use App\Http\Controllers\ShopOrderController;
+use App\Http\Controllers\ShopOrderInvoiceController;
 use App\Http\Controllers\ShopProductCategoryController;
 use App\Http\Controllers\ShopProductController;
 use App\Http\Controllers\ShopProductProviderController;
 use App\Http\Controllers\ShopProductSectionController;
 use App\Http\Controllers\ShopSaleController;
-use App\Http\Controllers\StationCashRegisterController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StationController;
@@ -38,6 +38,7 @@ Route::prefix('shop-cash-registers')->middleware('auth:sanctum')->group(function
     Route::get('dashboard', [ShopCashRegisterController::class, 'dashboard']);
     // courbe d'evolution
     Route::get('sales-evolutions', [ShopCashRegisterController::class, 'salesEvolutions']);
+    Route::get('{shopCashRegister}', [ShopCashRegisterController::class, 'show']);
 });
 
 // shop sales
@@ -76,6 +77,7 @@ Route::prefix('products')->middleware('auth:sanctum')->group(function () {
 
 Route::prefix('shop-orders')->middleware('auth:sanctum')->group(function () {
     Route::get('/{shopOrder}/download-pdf', [ShopOrderController::class, 'downloadPdf']);
+    Route::get('/{shopOrder}/download-bill', [ShopOrderController::class, 'downloadBill']);
     Route::get('/', [ShopOrderController::class, 'index']);
     Route::post('/', [ShopOrderController::class, 'store']);
     Route::get('/{shopOrder}', [ShopOrderController::class, 'show']);
@@ -93,8 +95,6 @@ Route::prefix('shop-products')->middleware('auth:sanctum')->group(function () {
     Route::get('/{shopProduct}', [ShopProductController::class, 'show']);
     Route::put('/{shopProduct}', [ShopProductController::class, 'update']);
     Route::delete('/{shopProduct}', [ShopProductController::class, 'destroy']);
-
-
 });
 
 // shop-product-providers/
@@ -104,6 +104,13 @@ Route::prefix('shop-product-providers')->middleware('auth:sanctum')->group(funct
     Route::post('/', [ShopProductProviderController::class, 'store']);
     Route::put('/{shopProductProvider}', [ShopProductProviderController::class, 'update']);
     Route::delete('/{shopProductProvider}', [ShopProductProviderController::class, 'destroy']);
+});
+
+// shop-order-invoices
+Route::prefix('shop-order-invoices')->middleware('auth:sanctum')->group(function () {
+    Route::get('/{shopOrderInvoice}/download-pdf', [ShopOrderInvoiceController::class, 'downloadPdf']);
+    Route::post('/', [ShopOrderInvoiceController::class, 'store']);
+    Route::get('/', [ShopOrderInvoiceController::class, 'index']);
 });
 
 //shop-product-sections
@@ -164,6 +171,7 @@ Route::prefix('tank-stock-flows')->middleware('auth:sanctum')->group(function ()
 
 Route::prefix('station-cash-registers')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [App\Http\Controllers\StationCashRegisterController::class, 'index']);
+    Route::get('/{stationCashRegister}', [App\Http\Controllers\StationCashRegisterController::class, 'show']);
 });
 
 Route::prefix('transactions')->middleware('auth:sanctum')->group(function () {});

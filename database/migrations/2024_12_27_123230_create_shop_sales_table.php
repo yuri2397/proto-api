@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('shop_sales', function (Blueprint $table) {
             $table->id();
-            $table->date('date')->default(now());
+            $table->datetime('date')->default(now());
             $table->float('total_amount')->comment('total amount of the sale');
             $table->float('given_amount')->comment('amount given by the customer');
             $table->float('returned_amount')->nullable()->comment('amount returned to the customer');

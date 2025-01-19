@@ -16,6 +16,11 @@ class ShopOrderItem extends BaseModel
         'tva',
     ];
 
+    protected $appends = [
+        'totalBuyingPrice',
+        'totalSellingPrice',
+    ];
+
     public function shopOrder()
     {
         return $this->belongsTo(ShopOrder::class);
@@ -29,6 +34,18 @@ class ShopOrderItem extends BaseModel
     public function shopProductItem()
     {
         return $this->belongsTo(ShopProductItem::class);
+    }
+
+    // total buying price
+    public function getTotalBuyingPriceAttribute()
+    {
+        return $this->buying_price * $this->quantity;
+    }
+
+    // total selling price
+    public function getTotalSellingPriceAttribute()
+    {
+        return $this->selling_price * $this->quantity;
     }
 }
 

@@ -20,4 +20,10 @@ class StationCashRegisterController extends Controller
 
         return $query->paginate(perPage: $request->perPage ?? 10, page: $request->page ?? 1);
     }
+
+    public function show(StationCashRegister $stationCashRegister, Request $request)
+    {
+        $stationCashRegister->load($request->with ?? []);
+        return $stationCashRegister;
+    }
 }

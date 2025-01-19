@@ -12,11 +12,13 @@ class ShopOrder extends BaseModel
 
     protected $fillable = [
         'reference',
+        'order_number',
         'status',
         'date',
         'station_id',
         'user_id',
         'shop_product_provider_id',
+        'shop_order_invoice_id',
     ];
 
     protected $appends = [
@@ -53,17 +55,31 @@ class ShopOrder extends BaseModel
     {
         return $this->hasMany(ShopOrderItem::class);
     }
+    
+    // shop order invoice
+    public function shopOrderInvoice()
+    {
+        return $this->belongsTo(ShopOrderInvoice::class);
+    }
 
     // total selling price
     public function getTotalSellingPriceAttribute()
     {
-        return $this->shopOrderItems->sum('selling_price');
+        $sum = 0;
+        foreach ($this->shopOrderItems as $shopOrderItem) {
+            $sum += $shopOrderItem->selling_price * $shopOrderItem->quantity;
+        }
+        return $sum;
     }
 
     // total buying price
     public function getTotalBuyingPriceAttribute()
     {
-        return $this->shopOrderItems->sum('buying_price');
+        $sum = 0;
+        foreach ($this->shopOrderItems as $shopOrderItem) {
+            $sum += $shopOrderItem->buying_price * $shopOrderItem->quantity;
+        }
+        return $sum;
     }
 
     // count products items
@@ -73,7 +89,7 @@ class ShopOrder extends BaseModel
     }
 
     // shop order provider
-    public function shopOrderProvider()
+    public function shopProductProvider()
     {
         return $this->belongsTo(ShopProductProvider::class);
     }

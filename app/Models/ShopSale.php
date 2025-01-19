@@ -58,11 +58,17 @@ class ShopSale extends BaseModel
 
     public function generateTicketNumber()
     {
-        $lastSale = $this->where('station_id', $this->station_id)->orderBy('created_at', 'desc')->first();
-        if ($lastSale) {
-            return 'T-' . ($lastSale->ticket_number + 1);
+        // Récupérer la dernière référence
+        $lastRecord = self::where('station_id', $this->station_id)->orderBy('id', 'desc')->first();
+
+        if ($lastRecord && $lastRecord->ticket_number) {
+            // supprimer le T- et convertir en int
+            $lastTiketNumberValue = intval(substr($lastRecord->ticket_number, 2));
+            return 'T-' . ($lastTiketNumberValue + 1);
+        } else {
+            // Si aucune référence, utiliser la date actuelle
+            return 'T-' . 1; // Exemple : T-20250116001
         }
-        return 'T-1';
     }
 
     public function station(): BelongsTo
@@ -92,6 +98,7 @@ class ShopSale extends BaseModel
             ->orWhereHas('user', function ($query) use ($search) {
                 $query->where('name', 'like', '%' . $search . '%');
             })
+            ->orWhere('ticket_number', $search)
             ->orWhereHas('shopSaleItems', function ($query) use ($search) {
                 $query->whereHas('shopProduct', function ($query) use ($search) {
                     $query->where('name', 'like', '%' . $search . '%');

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Product;
 use App\Models\StationProductCategory;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -54,13 +55,6 @@ class PreloadData extends Seeder
 
         $manager = Role::create(['name' => 'shop_manager', 'guard_name' => 'api']);
         $manager->givePermissionTo($permissions);
-
-        // $employee = Role::create(['name' => 'pump_operator', 'guard_name' => 'api']);
-        // $employee->givePermissionTo([
-        //     'view_pump_index',
-        //     'view_pump_transactions',
-        // ]);
-
         $userAdmin = User::create([
             'name' => 'Admin',
             'email' => 'admin@admin.com',
@@ -86,207 +80,49 @@ class PreloadData extends Seeder
 
         $userManager->assignRole('shop_manager');
 
-        // add tanks to station
-        // $tank1 = \App\Models\Tank::create([
-        //     'name' => 'Cuve 1',
-        //     'type' =>  \App\Models\Tank::TYPE_GASOLINE,
-        //     'capacity' => 15000,
-        //     'current_quantity' => 8000,
-        //     'station_id' => $station->id
-        // ]);
+        $products = [
+            [
+                'name' => 'Riz Jasmine 5kg',
+                'status' => 'active',
+                'ean13' => '1234567890123',
+                'category' => 'Aliments de base',
+                'description' => 'Riz parfumé de qualité supérieure, 5 kg.',
+                'default_price' => 4500.00,
+            ],
+            [
+                'name' => 'Huile d’arachide 1L',
+                'status' => 'active',
+                'ean13' => '9876543210987',
+                'category' => 'Huiles et graisses',
+                'description' => 'Huile d’arachide pure 1L.',
+                'default_price' => 2500.00,
+            ],
+            [
+                'name' => 'Savon multi-usage',
+                'status' => 'inactive',
+                'ean13' => null, // Pas de code EAN13
+                'category' => 'Produits d’entretien',
+                'description' => 'Savon pour lessive et nettoyage général.',
+                'default_price' => 500.00,
+            ],
+            [
+                'name' => 'Jus de Bissap 500ml',
+                'status' => 'active',
+                'ean13' => '7894561230123',
+                'category' => 'Boissons',
+                'description' => 'Jus de Bissap fait maison, 500ml.',
+                'default_price' => 1000.00,
+            ],
+            [
+                'name' => 'Farine de maïs 1kg',
+                'status' => 'active',
+                'ean13' => '3216549876543',
+                'category' => 'Aliments de base',
+                'description' => 'Farine de maïs bio, 1kg.',
+                'default_price' => 1200.00,
+            ],
+        ];
 
-        // app pump
-        // $pump1Tank1 = \App\Models\Pump::create([
-        //     'name' => 'Pompe 1',
-        //     'status' => 'active',
-        //     'tank_id' => $tank1->id,
-        //     'station_id' => $station->id
-        // ]);
-
-        // $pump2Tank1 = \App\Models\Pump::create([
-        //     'name' => 'Pompe 2',
-        //     'status' => 'active',
-        //     'tank_id' => $tank1->id,
-        //     'station_id' => $station->id
-        // ]);
-
-
-        // $tank2 = \App\Models\Tank::create([
-        //     'name' => 'Cuve 2',
-        //     'type' =>  \App\Models\Tank::TYPE_DIESEL,
-        //     'capacity' => 20000,
-        //     'current_quantity' => 4000,
-        //     'station_id' => $station->id
-        // ]);
-
-        // \App\Models\Pump::create([
-        //     'name' => 'Pompe 1',
-        //     'status' => 'active',
-        //     'tank_id' => $tank2->id,
-        //     'station_id' => $station->id
-        // ]);
-
-        // \App\Models\Pump::create([
-        //     'name' => 'Pompe 2',
-        //     'status' => 'active',
-        //     'tank_id' => $tank2->id,
-        //     'station_id' => $station->id
-        // ]);
-
-        // $tank3 = \App\Models\Tank::create([
-        //     'name' => 'Cuve 3',
-        //     'type' =>  \App\Models\Tank::TYPE_DIESEL,
-        //     'capacity' => 20000,
-        //     'current_quantity' => 13000,
-        //     'station_id' => $station->id
-        // ]);
-
-        // \App\Models\Pump::create([
-        //     'name' => 'Pompe 1',
-        //     'status' => 'active',
-        //     'tank_id' => $tank3->id,
-        //     'station_id' => $station->id
-        // ]);
-
-        // /**
-        //  * FUEL TRUCK DATA AND DRIVERS AND ONE Orders
-        //  */
-
-        // $truck = \App\Models\FuelTruck::create([
-        //     'matricule' => 'SN 123456 DK',
-        //     'transporter_name' => 'Diallo FuelTrans',
-        // ]);
-
-        // $driver = \App\Models\FuelTruckDriver::create([
-        //     'name' => 'Moussa Diallo',
-        //     'phone' => '+221 77 123 45 67',
-        // ]);
-
-        // /**
-        //  * 1L => 800 FCFA
-        //  */
-
-        // $config = \App\Models\FuelTruckConfig::create([
-        //     'total_quantity' => 14000,
-        //     'total_amount' => 14000 * 800,
-        //     'fuel_truck_id' => $truck->id,
-        //     'fuel_truck_driver_id' => $driver->id,
-        // ]);
-
-        // $config->fuelTruckConfigParts()->create([
-        //     'name' => 'Compartiment 1',
-        //     'number' => '1',
-        //     'quantity' => 2000,
-        //     'capacity' => 10000,
-        //     'type' => \App\Models\FuelTruckConfigPart::TYPE_DIESEL,
-        // ]);
-
-        // $config->fuelTruckConfigParts()->create([
-        //     'name' => 'Compartiment 2',
-        //     'number' => '2',
-        //     'quantity' => 3000,
-        //     'capacity' => 8000,
-        //     'type' => \App\Models\FuelTruckConfigPart::TYPE_GASOLINE,
-        // ]);
-
-        // $config->fuelTruckConfigParts()->create([
-        //     'name' => 'Compartiment 3',
-        //     'number' => '3',
-        //     'quantity' => 2000,
-        //     'capacity' => 5000,
-        //     'type' => \App\Models\FuelTruckConfigPart::TYPE_SUPER,
-        // ]);
-
-        // $config->fuelTruckConfigParts()->create([
-        //     'name' => 'Compartiment 4',
-        //     'number' => '4',
-        //     'quantity' => 2000,
-        //     'capacity' => 5000,
-        //     'type' => \App\Models\FuelTruckConfigPart::TYPE_SUPER,
-        // ]);
-
-        // $config->fuelTruckConfigParts()->create([
-        //     'name' => 'Compartiment 5',
-        //     'number' => '5',
-        //     'quantity' => 5000,
-        //     'capacity' => 10000,
-        //     'type' => \App\Models\FuelTruckConfigPart::TYPE_GASOLINE,
-        // ]);
-
-        // $order = \App\Models\StationFuelOrder::create([
-        //     'fuel_truck_config_id' => $config->id,
-        //     'quantity' => 14000,
-        //     'amount' => 14000 * 800,
-        //     'status' => \App\Models\StationFuelOrder::STATUS_INITIATED,
-        // ]);
-
-        // $order->stationFuelOrderItems()->create([
-        //     'received_quantity' => 2000,
-        //     'station_id' => $station->id,
-        //     'fuel_truck_config_part_id' => $config->fuelTruckConfigParts()->where('quantity', 2000)->first()->id,
-        //     'tank_id' => $tank1->id,
-        // ]);
-
-        // $order->stationFuelOrderItems()->create([
-        //     'received_quantity' => 3000,
-        //     'fuel_truck_config_part_id' => $config->fuelTruckConfigParts()->where('quantity', 3000)->first()->id,
-        //     'station_id' => $station->id,
-        // ]);
-
-        // $order->stationFuelOrderItems()->create([
-        //     'received_quantity' => 2000,
-        //     'fuel_truck_config_part_id' => $config->fuelTruckConfigParts()->where('quantity', 2000)->first()->id,
-        //     'station_id' => $station->id,
-        // ]);
-
-        // $order->stationFuelOrderItems()->create([
-        //     'received_quantity' => 5000,
-        //     'fuel_truck_config_part_id' => $config->fuelTruckConfigParts()->where('quantity', 5000)->first()->id,
-        //     'station_id' => $station->id,
-        // ]);
-
-
-        /**
-         * CATEGORIES DATA
-         */
-
-        // $categories = [
-        //     [
-        //         'name' => 'Carburants',
-        //         'description' => 'Différents types de carburants comme l’essence et le diesel',
-        //     ],
-        //     [
-        //         'name' => 'Lubrifiants',
-        //         'description' => 'Différents types d’huiles et de lubrifiants pour véhicules et machines',
-        //     ],
-        //     [
-        //         'name' => 'Accessoires',
-        //         'description' => 'Accessoires pour véhicules comme les essuie-glaces, les désodorisants et les housses de siège',
-        //     ],
-        //     [
-        //         'name' => 'Boissons',
-        //         'description' => 'Boissons fraîches, eau et autres rafraîchissements disponibles à la station',
-        //     ],
-        //     [
-        //         'name' => 'Snacks',
-        //         'description' => 'Articles de collation comme les chips, les chocolats et autres aliments emballés',
-        //     ],
-        //     [
-        //         'name' => 'Produits de lavage',
-        //         'description' => 'Articles utilisés pour les services de lavage de voiture comme le savon, les éponges et les brosses',
-        //     ],
-        //     [
-        //         'name' => 'Pneus et Batteries',
-        //         'description' => 'Pneus de rechange, batteries de voiture et produits associés',
-        //     ],
-        //     [
-        //         'name' => 'Produits d’entretien',
-        //         'description' => 'Produits pour l’entretien des véhicules comme l’antigel, le liquide de frein et les nettoyants',
-        //     ],
-        // ];
-
-        // foreach ($categories as $category) {
-        //     StationProductCategory::firstOrCreate(['name' => $category['name']], $category);
-        // }
+        Product::insert($products);
     }
 }
